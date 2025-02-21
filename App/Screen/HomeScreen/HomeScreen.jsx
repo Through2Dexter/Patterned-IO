@@ -11,6 +11,7 @@ import {
 import MapView, { Marker } from "react-native-maps";
 import { Picker } from "@react-native-picker/picker";
 import Colors from "../../Utils/Colors"; // Import Colors from Utils/Colors.js
+import { Ionicons } from "@expo/vector-icons"; // Import for menu icon
 
 const HomeScreen = () => {
   const [selectedService, setSelectedService] = useState("");
@@ -63,9 +64,12 @@ const HomeScreen = () => {
     },
   ];
 
-  const filteredProviders = serviceProviders.filter(
-    (provider) => provider.service === selectedService
-  );
+  const filteredProviders =
+    selectedService === "all"
+      ? serviceProviders
+      : serviceProviders.filter(
+          (provider) => provider.service === selectedService
+        );
 
   return (
     <View style={styles.container}>
@@ -91,52 +95,52 @@ const HomeScreen = () => {
         ))}
       </MapView>
 
-      {/* Profile Button with Image */}
+      {/* Profile Button */}
       <TouchableOpacity
         style={styles.profileButton}
         onPress={() => alert("Open Drawer here!")} // Replace with your navigation function
       >
         <Image
-          source={require("../../../Assets/Images/profile.jpg")} // Correct relative path
+          source={require("../../../Assets/Images/profile.jpg")}
           style={styles.profileImage}
         />
       </TouchableOpacity>
 
-      {/* Round Burger Menu Button */}
+      {/* Burger Menu in a Circular Frame */}
       <TouchableOpacity
-        style={styles.burgerMenuButton}
-        onPress={() => alert("Open Burger Menu!")} // Replace with actual navigation
+        style={styles.burgerMenu}
+        onPress={() => alert("Open Menu!")}
       >
-        <View style={styles.burgerIcon}></View>
-        <View style={styles.burgerIcon}></View>
-        <View style={styles.burgerIcon}></View>
+        <Ionicons name="menu" size={30} color={Colors.PRIMARY} />
       </TouchableOpacity>
 
-      {/* Button for service filter */}
+      {/* Service Filter Button */}
       <TouchableOpacity
         style={styles.filterButton}
         onPress={() => setIsModalVisible(true)}
       >
         <Text style={styles.filterText}>
-          {selectedService
-            ? selectedService.charAt(0).toUpperCase() + selectedService.slice(1)
-            : "Choose a service"}
+          {selectedService === ""
+            ? "Choose a service"
+            : selectedService === "all"
+            ? "All Services"
+            : selectedService.charAt(0).toUpperCase() +
+              selectedService.slice(1)}
         </Text>
       </TouchableOpacity>
 
-      {/* Dark overlay and carousel (picker) */}
+      {/* Dark overlay when modal is visible */}
       {isModalVisible && (
         <TouchableWithoutFeedback onPress={() => setIsModalVisible(false)}>
           <View style={styles.overlay} />
         </TouchableWithoutFeedback>
       )}
 
-      {/* Modal to show service options */}
+      {/* Service Selection Modal */}
       {isModalVisible && (
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Choose a service</Text>
 
-          {/* Carousel-style Picker */}
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={selectedService}
@@ -144,13 +148,13 @@ const HomeScreen = () => {
               style={styles.picker}
               mode="dropdown"
             >
+              <Picker.Item label="All Services" value="all" />
               {[
-                "hair",
+                "hairstylists",
                 "barbers",
-                "nails",
-                "lashes",
+                "nailtechs",
+                "loctitians",
                 "facials",
-                "brows",
                 "makeup",
                 "dental",
               ].map((service) => (
@@ -185,36 +189,31 @@ const styles = StyleSheet.create({
   },
   profileButton: {
     position: "absolute",
-    top: 50, // Adjusted to move it down (previously 20px)
+    top: 50,
     left: 20,
     zIndex: 100,
   },
   profileImage: {
     width: 50,
     height: 50,
-    borderRadius: 25, // Circular image
+    borderRadius: 25,
     borderWidth: 3,
-    borderColor: Colors.PRIMARY, // Add a border color
+    borderColor: Colors.PRIMARY,
   },
-  burgerMenuButton: {
+  burgerMenu: {
     position: "absolute",
-    top: 50, // Same vertical alignment as profile button
-    right: 20, // Positioned on the right side
-    zIndex: 100,
+    top: 50,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
-    width: 50, // Same size as profile image
-    height: 50,
-    borderRadius: 25, // Circular shape
-    backgroundColor: Colors.PRIMARY, // Set the background color of the circle
-    padding: 10,
-  },
-  burgerIcon: {
-    width: 25,
-    height: 3,
-    backgroundColor: "#fff", // White color for the lines
-    marginVertical: 4,
-    borderRadius: 5,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
   },
   filterButton: {
     backgroundColor: Colors.PRIMARY,
@@ -223,7 +222,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignSelf: "center",
     position: "absolute",
-    bottom: 50, // Increased to make it more prominent
+    bottom: 50,
     zIndex: 100,
   },
   filterText: {
@@ -233,11 +232,11 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.7)", // Dark overlay for better contrast
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
   modalContainer: {
     position: "absolute",
-    top: "30%", // Adjusted to center the modal
+    top: "30%",
     left: 0,
     right: 0,
     bottom: 0,
@@ -250,16 +249,16 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#fff", // White title text
+    color: "#fff",
     textAlign: "center",
   },
   pickerContainer: {
     justifyContent: "center",
     alignItems: "center",
-    width: "80%", // Ensure it's centered
+    width: "80%",
     marginBottom: 20,
-    overflow: "hidden", // Prevent services from overflowing
-    height: 200, // Explicit height for better control of visibility
+    overflow: "hidden",
+    height: 200,
     backgroundColor: "white",
     borderRadius: 10,
   },

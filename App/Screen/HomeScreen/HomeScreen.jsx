@@ -13,7 +13,7 @@ import { Picker } from "@react-native-picker/picker";
 import Colors from "../../Utils/Colors"; // Import Colors from Utils/Colors.js
 
 const HomeScreen = () => {
-  const [selectedService, setSelectedService] = useState("hairstylists");
+  const [selectedService, setSelectedService] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   // Service provider data
@@ -108,7 +108,9 @@ const HomeScreen = () => {
         onPress={() => setIsModalVisible(true)}
       >
         <Text style={styles.filterText}>
-          {selectedService.charAt(0).toUpperCase() + selectedService.slice(1)}
+          {selectedService
+            ? selectedService.charAt(0).toUpperCase() + selectedService.slice(1)
+            : "Choose a service"}
         </Text>
       </TouchableOpacity>
 

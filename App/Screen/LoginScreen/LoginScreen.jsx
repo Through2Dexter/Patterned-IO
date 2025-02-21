@@ -39,7 +39,10 @@ export default function LoginScreen({ navigation }) {
       <View>
         <Text style={styles.heading}>Let's pattern it...</Text>
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
+          <Text style={styles.buttonText}>Login with Apple</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Login with Google</Text>
         </TouchableOpacity>
       </View>
     </View>

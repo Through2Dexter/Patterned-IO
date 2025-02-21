@@ -24,7 +24,7 @@ const HomeScreen = () => {
       name: "Hair Stylist 1",
       lat: 51.5074,
       lon: -0.1278,
-      service: "hairstylists",
+      service: "hair",
     },
     { id: 2, name: "Barber 1", lat: 51.5075, lon: -0.1277, service: "barbers" },
     {
@@ -32,7 +32,7 @@ const HomeScreen = () => {
       name: "Nail Tech 1",
       lat: 51.5073,
       lon: -0.1279,
-      service: "nailtechs",
+      service: "nails",
     },
     {
       id: 4,
@@ -121,7 +121,7 @@ const HomeScreen = () => {
       >
         <Text style={styles.filterText}>
           {selectedService === ""
-            ? "Choose a service"
+            ? "pick a service"
             : selectedService === "all"
             ? "All Services"
             : selectedService.charAt(0).toUpperCase() +
@@ -139,7 +139,7 @@ const HomeScreen = () => {
       {/* Service Selection Modal */}
       {isModalVisible && (
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Choose a service</Text>
+          <Text style={styles.modalTitle}>Pick a service</Text>
 
           <View style={styles.pickerContainer}>
             <Picker
@@ -150,9 +150,10 @@ const HomeScreen = () => {
             >
               <Picker.Item label="All Services" value="all" />
               {[
-                "hairstylists",
+                "hair",
                 "barbers",
-                "nailtechs",
+                "nails",
+                "lashes",
                 "loctitians",
                 "facials",
                 "makeup",

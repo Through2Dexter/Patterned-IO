@@ -135,11 +135,12 @@ const HomeScreen = () => {
               mode="dropdown"
             >
               {[
-                "hairstylists",
+                "hair",
                 "barbers",
-                "loctitians",
-                "nailtechs",
+                "nails",
+                "lashes",
                 "facials",
+                "brows",
                 "makeup",
                 "dental",
               ].map((service) => (

@@ -57,13 +57,13 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   logoImage: {
-    width: 250,
-    height: 150,
+    width: 350, // Increased width
+    height: 250, // Increased height
     resizeMode: "contain",
   },
   heading: {
     fontSize: 25,
-    fontFamily: "Outfit-Bold", // ✅ Apply custom font
+    fontFamily: "Outfit-Bold",
     textAlign: "center",
     marginTop: 20,
     color: Colors.PRIMARY,
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: Colors.WHITE,
     textAlign: "center",
-    fontFamily: "Outfit-Bold", // ✅ Apply custom font
-    fontSize: 14,
+    fontFamily: "Outfit-Bold",
+    fontSize: 16, // Slightly larger text
   },
 });

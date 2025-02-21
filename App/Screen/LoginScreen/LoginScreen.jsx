@@ -1,17 +1,38 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import Colors from "../../Utils/Colors"; // Ensure this file exists!
+import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
 
 export default function LoginScreen({ navigation }) {
+  // Prevent splash screen from auto-hiding
+  SplashScreen.preventAutoHideAsync();
+
+  // Load the font
+  let [fontsLoaded] = useFonts({
+    "Outfit-Bold": require("../../../Assets/fonts/Outfit-Bold.ttf"),
+  });
+
+  // Callback to hide splash screen once fonts are loaded
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null; // Avoid rendering UI until fonts load
+  }
+
   const handleLogin = () => {
     navigation.navigate("HomeScreen"); // Navigate to HomeScreen
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={onLayoutRootView}>
       <View style={styles.logoContainer}>
         <Image
-          source={require("../../../Assets/Images/logo_.png")} // ✅ Updated to "Assets"
+          source={require("../../../Assets/Images/logo_.png")}
           style={styles.logoImage}
         />
       </View>
@@ -42,7 +63,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: 25,
-    fontFamily: "outfit-bold",
+    fontFamily: "Outfit-Bold", // ✅ Apply custom font
     textAlign: "center",
     marginTop: 20,
     color: Colors.PRIMARY,
@@ -57,7 +78,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: Colors.WHITE,
     textAlign: "center",
-    fontFamily: "outfit",
+    fontFamily: "Outfit-Bold", // ✅ Apply custom font
     fontSize: 14,
   },
 });

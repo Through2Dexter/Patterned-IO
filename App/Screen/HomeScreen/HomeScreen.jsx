@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   },
   picker: {
     width: "100%",
-    height: 150,
+    height: 240,
     backgroundColor: "#fff",
     borderRadius: 10,
   },

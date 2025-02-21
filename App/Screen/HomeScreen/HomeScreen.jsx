@@ -102,6 +102,16 @@ const HomeScreen = () => {
         />
       </TouchableOpacity>
 
+      {/* Round Burger Menu Button */}
+      <TouchableOpacity
+        style={styles.burgerMenuButton}
+        onPress={() => alert("Open Burger Menu!")} // Replace with actual navigation
+      >
+        <View style={styles.burgerIcon}></View>
+        <View style={styles.burgerIcon}></View>
+        <View style={styles.burgerIcon}></View>
+      </TouchableOpacity>
+
       {/* Button for service filter */}
       <TouchableOpacity
         style={styles.filterButton}
@@ -185,6 +195,26 @@ const styles = StyleSheet.create({
     borderRadius: 25, // Circular image
     borderWidth: 3,
     borderColor: Colors.PRIMARY, // Add a border color
+  },
+  burgerMenuButton: {
+    position: "absolute",
+    top: 50, // Same vertical alignment as profile button
+    right: 20, // Positioned on the right side
+    zIndex: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 50, // Same size as profile image
+    height: 50,
+    borderRadius: 25, // Circular shape
+    backgroundColor: Colors.PRIMARY, // Set the background color of the circle
+    padding: 10,
+  },
+  burgerIcon: {
+    width: 25,
+    height: 3,
+    backgroundColor: "#fff", // White color for the lines
+    marginVertical: 4,
+    borderRadius: 5,
   },
   filterButton: {
     backgroundColor: Colors.PRIMARY,

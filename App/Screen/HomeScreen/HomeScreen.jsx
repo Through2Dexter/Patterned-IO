@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,14 +10,28 @@ import {
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Picker } from "@react-native-picker/picker";
-import Colors from "../../Utils/Colors"; // Import Colors from Utils/Colors.js
-import { Ionicons } from "@expo/vector-icons"; // Import for menu icon
+import Colors from "../../Utils/Colors";
+import { Ionicons } from "@expo/vector-icons";
+import * as Font from "expo-font"; // Importing expo-font
 
 const HomeScreen = () => {
   const [selectedService, setSelectedService] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [fontLoaded, setFontLoaded] = useState(false);
 
-  // Service provider data
+  // Load the custom font
+  useEffect(() => {
+    const loadFonts = async () => {
+      await Font.loadAsync({
+        "Outfit-Regular": require("../../../Assets/fonts/Outfit-Regular.ttf"), // Path to your font
+      });
+      setFontLoaded(true); // Set font loaded state to true
+    };
+
+    loadFonts();
+  }, []);
+
   const serviceProviders = [
     {
       id: 1,
@@ -98,7 +112,7 @@ const HomeScreen = () => {
       {/* Profile Button */}
       <TouchableOpacity
         style={styles.profileButton}
-        onPress={() => alert("Open Drawer here!")} // Replace with your navigation function
+        onPress={() => alert("Open Drawer here!")}
       >
         <Image
           source={require("../../../Assets/Images/profile.jpg")}
@@ -106,31 +120,39 @@ const HomeScreen = () => {
         />
       </TouchableOpacity>
 
-      {/* Burger Menu in a Circular Frame */}
+      {/* Burger Menu with Border */}
       <TouchableOpacity
         style={styles.burgerMenu}
-        onPress={() => alert("Open Menu!")}
+        activeOpacity={0.9}
+        onPress={() => {
+          if (isModalVisible) {
+            setIsModalVisible(false); // Hide the service picker modal if it's open
+          }
+          setIsMenuVisible(!isMenuVisible); // Toggle the burger menu
+        }}
       >
-        <Ionicons name="menu" size={30} color={Colors.PRIMARY} />
+        <Ionicons name="menu" size={30} color={Colors.PINK} />
       </TouchableOpacity>
 
       {/* Service Filter Button */}
-      <TouchableOpacity
-        style={styles.filterButton}
-        onPress={() => setIsModalVisible(true)}
-      >
-        <Text style={styles.filterText}>
-          {selectedService === ""
-            ? "pick a service"
-            : selectedService === "all"
-            ? "All Services"
-            : selectedService.charAt(0).toUpperCase() +
-              selectedService.slice(1)}
-        </Text>
-      </TouchableOpacity>
+      {!isMenuVisible && (
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() => setIsModalVisible(true)}
+        >
+          <Text style={styles.filterText}>
+            {selectedService === ""
+              ? "Pick a service"
+              : selectedService === "all"
+              ? "All Services"
+              : selectedService.charAt(0).toUpperCase() +
+                selectedService.slice(1)}
+          </Text>
+        </TouchableOpacity>
+      )}
 
-      {/* Dark overlay when modal is visible */}
-      {isModalVisible && (
+      {/* Dark overlay when modal or menu is visible */}
+      {(isModalVisible || isMenuVisible) && (
         <TouchableWithoutFeedback onPress={() => setIsModalVisible(false)}>
           <View style={styles.overlay} />
         </TouchableWithoutFeedback>
@@ -140,7 +162,6 @@ const HomeScreen = () => {
       {isModalVisible && (
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Pick a service</Text>
-
           <View style={styles.pickerContainer}>
             <Picker
               selectedValue={selectedService}
@@ -177,6 +198,52 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Menu Overlay */}
+      {isMenuVisible && (
+        <View style={styles.menuOverlay}>
+          <Text style={styles.menuTitle}>Map Menu</Text>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => alert("Layer 1")}
+          >
+            <Text
+              style={[
+                styles.menuItemText,
+                fontLoaded && { fontFamily: "Outfit-Regular" },
+              ]}
+            >
+              Layer 1
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => alert("Layer 2")}
+          >
+            <Text
+              style={[
+                styles.menuItemText,
+                fontLoaded && { fontFamily: "Outfit-Regular" },
+              ]}
+            >
+              Layer 2
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => alert("Zoom Options")}
+          >
+            <Text
+              style={[
+                styles.menuItemText,
+                fontLoaded && { fontFamily: "Outfit-Regular" },
+              ]}
+            >
+              Zoom Options
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
@@ -208,14 +275,18 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.PRIMARY,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
+    borderWidth: 3,
+    borderColor: Colors.PRIMARY,
+    zIndex: 200, // Increased zIndex to ensure it sits on top of the overlay
   },
+
   filterButton: {
     backgroundColor: Colors.PRIMARY,
     paddingHorizontal: 30,
@@ -281,6 +352,44 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  menuOverlay: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -125 }, { translateY: -150 }],
+    backgroundColor: Colors.PINK,
+    borderRadius: 15,
+    padding: 20,
+    width: 250,
+    zIndex: 150,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 6,
+    borderWidth: 2,
+    borderColor: Colors.PRIMARY, // Border with PRIMARY color
+  },
+  menuTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+    color: Colors.PRIMARY,
+  },
+  menuItem: {
+    backgroundColor: "#442c2e",
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    marginBottom: 5,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: Colors.PRIMARY, // Border for each button-like item
+  },
+  menuItemText: {
+    fontSize: 18,
+    color: Colors.PINK,
+    textAlign: "center",
   },
 });
 

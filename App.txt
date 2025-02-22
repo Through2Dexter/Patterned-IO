@@ -7,34 +7,18 @@ import {
 import LoginScreen from "./App/Screen/LoginScreen/LoginScreen";
 import HomeScreen from "./App/Screen/HomeScreen/HomeScreen";
 import "react-native-gesture-handler";
-import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 
-import { tokenCache } from "./cache";
 
 const Stack = createStackNavigator();
 
-// Access the publishable key from the extra field in app.json
-
-const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
-
-if (!publishableKey) {
-  throw new Error(
-    "Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env"
-  );
-}
-
-console.log(publishableKey); // Use the publishable key here
 export default function App() {
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <ClerkLoaded>
         <NavigationContainer>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="LoginScreen" component={LoginScreen} />
             <Stack.Screen name="HomeScreen" component={HomeScreen} />
           </Stack.Navigator>
         </NavigationContainer>
-      </ClerkLoaded>
-    </ClerkProvider>
+
   );
 }

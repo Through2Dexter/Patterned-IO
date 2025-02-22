@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "./App/Screen/LoginScreen/LoginScreen";
 import HomeScreen from "./App/Screen/HomeScreen/HomeScreen";
-
+import "react-native-gesture-handler";
 const Stack = createStackNavigator();
 
 export default function App() {

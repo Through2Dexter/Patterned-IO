@@ -1,69 +1,123 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+} from "react-native";
 import Colors from "../../Utils/Colors";
 import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
 
 export default function LoginScreen({ navigation }) {
-  // Prevent splash screen from auto-hiding
-  useEffect(() => {
-    SplashScreen.preventAutoHideAsync(); // Call this once at component mount
-    return () => {
-      SplashScreen.hideAsync(); // Ensure splash screen hides when the component unmounts
-    };
-  }, []);
-
-  // Load the font
-  let [fontsLoaded] = useFonts({
+  const [isPressed, setIsPressed] = useState(null); // Track which button is pressed
+  const [fontsLoaded] = useFonts({
     "Outfit-Bold": require("../../../Assets/fonts/Outfit-Bold.ttf"),
   });
 
-  const [isPressed, setIsPressed] = useState(false);
+  const logoTranslateY = new Animated.Value(100); // Controls logo movement from bottom
+  const buttonsOpacity = new Animated.Value(0); // Controls buttons fade-in
 
-  const handleLogin = () => {
-    navigation.navigate("HomeScreen");
-  };
-
-  const onLayoutRootView = useCallback(async () => {
+  // Run animations once fonts are loaded
+  useEffect(() => {
     if (fontsLoaded) {
-      await SplashScreen.hideAsync();
+      // Animate the logo from bottom to center
+      Animated.timing(logoTranslateY, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start();
+
+      // Animate buttons to fade in after logo animation
+      Animated.timing(buttonsOpacity, {
+        toValue: 1,
+        duration: 500,
+        delay: 1200, // Wait for logo animation to complete
+        useNativeDriver: true,
+      }).start();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded]); // Re-run animation only after fonts are loaded
 
   // Wait for fonts to load before rendering the UI
   if (!fontsLoaded) {
-    return null;
+    return <Text>Loading...</Text>; // Temporary loading text to check if font is loaded
   }
 
   return (
-    <View style={styles.container} onLayout={onLayoutRootView}>
-      <View style={styles.logoContainer}>
+    <View style={styles.container}>
+      {/* Logo with animation */}
+      <Animated.View
+        style={[
+          styles.logoContainer,
+          {
+            transform: [{ translateY: logoTranslateY }],
+          },
+        ]}
+      >
         <Image
           source={require("../../../Assets/Images/logo_.png")}
           style={styles.logoImage}
         />
-      </View>
-      <View>
-        <Text style={styles.heading}>Let's pattern it...</Text>
+      </Animated.View>
 
+      {/* Heading */}
+      <Text style={styles.heading}>Let's pattern it...</Text>
+
+      {/* Buttons with fade-in animation */}
+      <Animated.View style={{ opacity: buttonsOpacity }}>
         {/* Apple Login Button */}
         <TouchableOpacity
-          style={styles.button}
-          onPress={handleLogin}
-          activeOpacity={0.7} // Light overlay effect on press
+          style={[
+            styles.button,
+            {
+              backgroundColor:
+                isPressed === "apple" ? Colors.WHITE : Colors.PRIMARY,
+              borderWidth: 2,
+              borderColor: Colors.PRIMARY,
+            },
+          ]}
+          onPress={() => {
+            navigation.navigate("HomeScreen"); // Navigate to HomeScreen
+            setIsPressed("apple"); // Mark Apple button as pressed
+          }}
         >
-          <Text style={styles.buttonText}>Login with Apple</Text>
+          <Text
+            style={[
+              styles.buttonText,
+              { color: isPressed === "apple" ? Colors.PRIMARY : Colors.WHITE },
+            ]}
+          >
+            Login with Apple
+          </Text>
         </TouchableOpacity>
 
         {/* Google Login Button */}
         <TouchableOpacity
-          style={styles.button}
-          onPress={handleLogin}
-          activeOpacity={0.7} // Light overlay effect on press
+          style={[
+            styles.button,
+            {
+              backgroundColor:
+                isPressed === "google" ? Colors.WHITE : Colors.PRIMARY,
+              borderWidth: 2,
+              borderColor: Colors.PRIMARY,
+            },
+          ]}
+          onPress={() => {
+            navigation.navigate("HomeScreen"); // Navigate to HomeScreen
+            setIsPressed("google"); // Mark Google button as pressed
+          }}
         >
-          <Text style={styles.buttonText}>Login with Google</Text>
+          <Text
+            style={[
+              styles.buttonText,
+              { color: isPressed === "google" ? Colors.PRIMARY : Colors.WHITE },
+            ]}
+          >
+            Login with Google
+          </Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -91,7 +145,6 @@ const styles = StyleSheet.create({
     color: Colors.PRIMARY,
   },
   button: {
-    backgroundColor: Colors.PRIMARY,
     padding: 15,
     borderRadius: 99,
     marginTop: 20,
@@ -101,6 +154,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "Outfit-Bold",
     fontSize: 16,
-    color: Colors.WHITE,
   },
 });

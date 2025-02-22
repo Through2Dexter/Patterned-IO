@@ -12,6 +12,7 @@ import {
 import MapView, { Marker } from "react-native-maps";
 import { Picker } from "@react-native-picker/picker";
 import Colors from "../../Utils/Colors";
+import { useFonts } from "expo-font";
 import { Ionicons } from "@expo/vector-icons";
 import * as Font from "expo-font"; // Importing expo-font
 
@@ -20,12 +21,23 @@ const HomeScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [fontLoaded, setFontLoaded] = useState(false);
+  const [mapType, setMapType] = useState("standard"); // Default map type is standard
+  const [loading, setLoading] = useState(true); // Loading state for map
 
   // Animated values for the menu container animation
   const menuAnim = {
-    translateY: useState(new Animated.Value(300))[0], // Start off-screen (bottom)
+    translateY: useState(new Animated.Value(-300))[0], // Start off-screen (top)
     opacity: useState(new Animated.Value(0))[0], // Start with no opacity
   };
+
+  // Animated values for the service modal animation
+  const modalAnim = {
+    translateY: useState(new Animated.Value(-300))[0], // Start off-screen (top)
+    opacity: useState(new Animated.Value(0))[0], // Start with no opacity
+  };
+
+  // Animated value for the logo pulsating effect
+  const logoAnim = useState(new Animated.Value(1))[0]; // For pulsating effect
 
   // Load the custom font
   useEffect(() => {
@@ -95,11 +107,11 @@ const HomeScreen = () => {
   // Trigger the animation for the menu when it becomes visible
   useEffect(() => {
     if (isMenuVisible) {
-      // Animate menu into view with a bounce effect
+      // Animate menu into view from the top
       Animated.spring(menuAnim.translateY, {
-        toValue: 0, // Menu comes to rest at the bottom
-        friction: 3, // This creates the "bounce"
-        tension: 100,
+        toValue: 0, // Menu slides down to the user
+        friction: 8, // Smooth and soft animation
+        tension: 50,
         useNativeDriver: true,
       }).start();
 
@@ -111,9 +123,9 @@ const HomeScreen = () => {
     } else {
       // Reset animation when menu is hidden
       Animated.spring(menuAnim.translateY, {
-        toValue: 300, // Hide the menu below the screen
-        friction: 3,
-        tension: 100,
+        toValue: -300, // Hide the menu above the screen
+        friction: 1,
+        tension: 50,
         useNativeDriver: true,
       }).start();
 
@@ -123,18 +135,87 @@ const HomeScreen = () => {
         useNativeDriver: true,
       }).start();
     }
-  }, [isMenuVisible]);
+
+    // Animation for the modal
+    if (isModalVisible) {
+      Animated.spring(modalAnim.translateY, {
+        toValue: 0, // Modal slides down from the top
+        friction: 7,
+        tension: 50,
+        useNativeDriver: true,
+      }).start();
+
+      Animated.timing(modalAnim.opacity, {
+        toValue: 1, // Full opacity
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      // Reset modal animation
+      Animated.spring(modalAnim.translateY, {
+        toValue: -300, // Hide the modal above the screen
+        friction: 7,
+        tension: 50,
+        useNativeDriver: true,
+      }).start();
+
+      Animated.timing(modalAnim.opacity, {
+        toValue: 0, // Fade out
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isMenuVisible, isModalVisible]);
+
+  // Map ready event handler
+  const onMapReady = () => {
+    setLoading(false); // Map has loaded, hide the loading state
+  };
+
+  // Logo pulsating animation
+  useEffect(() => {
+    if (loading) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.spring(logoAnim, {
+            toValue: 1.2,
+            friction: 2,
+            tension: 50,
+            useNativeDriver: true,
+          }),
+          Animated.spring(logoAnim, {
+            toValue: 1,
+            friction: 2,
+            tension: 50,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    }
+  }, [loading]);
 
   return (
     <View style={styles.container}>
+      {loading && (
+        <View style={styles.overlay}>
+          {/* Pulsating Logo */}
+          <Animated.Image
+            source={require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/logo_.png")} // Add your logo here
+            style={[styles.loadingLogo, { transform: [{ scale: logoAnim }] }]}
+          />
+        </View>
+      )}
+
       <MapView
         style={styles.map}
+        mapType={mapType} // Bind mapType to the selected value
         initialRegion={{
           latitude: 51.5074,
           longitude: -0.1278,
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
+        onMapReady={onMapReady} // Map ready event handler
       >
         {filteredProviders.map((provider) => (
           <Marker
@@ -200,7 +281,15 @@ const HomeScreen = () => {
 
       {/* Service Selection Modal */}
       {isModalVisible && (
-        <View style={styles.modalContainer}>
+        <Animated.View
+          style={[
+            styles.modalContainer,
+            {
+              transform: [{ translateY: modalAnim.translateY }],
+              opacity: modalAnim.opacity,
+            },
+          ]}
+        >
           <Text style={styles.modalTitle}>Pick a service</Text>
           <View style={styles.pickerContainer}>
             <Picker
@@ -236,7 +325,7 @@ const HomeScreen = () => {
           >
             <Text style={styles.doneButtonText}>Done</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       )}
 
       {/* Menu Overlay */}
@@ -250,43 +339,38 @@ const HomeScreen = () => {
             },
           ]}
         >
-          <Text style={styles.menuTitle}>Map View</Text>
+          <View style={styles.menuContainer}>
+            {["standard", "satellite", "hybrid"].map((view, index) => (
+              <TouchableOpacity
+                key={view}
+                style={[
+                  styles.menuItem, // Keep the original class
+                  mapType === view && { backgroundColor: Colors.PINK }, // Background color change when selected
+                  index === 0 && styles.firstMenuItem, // Apply additional style for the first item
+                ]}
+                onPress={() => {
+                  setMapType(view); // Change the map type
+                }}
+              >
+                <Text
+                  style={[
+                    styles.menuItemText,
+                    mapType === view && { color: "#fff" }, // Text color change when selected
+                  ]}
+                >
+                  {view.charAt(0).toUpperCase() + view.slice(1)}{" "}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Done Button to Close Menu */}
           <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => alert("Layer 1")}
+            style={styles.doneButton}
+            onPress={() => setIsMenuVisible(false)}
+            activeOpacity={1} // Prevent opacity change when pressed
           >
-            <Text
-              style={[
-                styles.menuItemText,
-                fontLoaded && { fontFamily: "Outfit-Regular" },
-              ]}
-            ></Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => alert("Layer 2")}
-          >
-            <Text
-              style={[
-                styles.menuItemText,
-                fontLoaded && { fontFamily: "Outfit-Regular" },
-              ]}
-            >
-              Layer 2
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.menuItem}
-            onPress={() => alert("Zoom Options")}
-          >
-            <Text
-              style={[
-                styles.menuItemText,
-                fontLoaded && { fontFamily: "Outfit-Regular" },
-              ]}
-            >
-              Zoom Options
-            </Text>
+            <Text style={styles.doneButtonText}>Done</Text>
           </TouchableOpacity>
         </Animated.View>
       )}
@@ -339,102 +423,104 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignSelf: "center",
     position: "absolute",
-    bottom: 50,
-    zIndex: 100,
+    bottom: 40,
+    zIndex: 100, // Ensure this button stays above the map
+    borderColor: Colors.PINK,
+    borderWidth: 2,
   },
   filterText: {
     color: "#fff",
-    fontSize: 20,
     fontWeight: "bold",
+    fontSize: 16,
   },
   overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 50,
+  },
+  loadingLogo: {
+    width: 100,
+    height: 100,
+    alignSelf: "center",
+    marginTop: "50%", // Adjust this for centering
   },
   modalContainer: {
     position: "absolute",
     top: "30%",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 200,
+    left: "10%",
+    right: "10%",
+    backgroundColor: "#fff",
     padding: 20,
+    borderRadius: 10,
+    borderColor: Colors.PRIMARY,
+    borderWidth: 3,
+    zIndex: 200, // Ensure the modal appears above the map
   },
   modalTitle: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 20,
-    color: "#fff",
-    textAlign: "center",
+    marginBottom: 10,
+    color: Colors.PRIMARY,
   },
   pickerContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: "80%",
     marginBottom: 20,
-    overflow: "hidden",
-    height: 200,
-    backgroundColor: "white",
-    borderRadius: 10,
   },
   picker: {
     width: "100%",
-    height: 240,
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    height: 150,
   },
   doneButton: {
-    backgroundColor: Colors.SECONDARY,
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    marginTop: 20,
-    borderRadius: 10,
-    alignSelf: "center",
+    backgroundColor: Colors.PRIMARY,
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: "center",
   },
   doneButtonText: {
     color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 16,
   },
   menuOverlay: {
     position: "absolute",
-    top: "40%",
-    left: "20%",
-    transform: [{ translateX: -125 }, { translateY: -150 }],
-    backgroundColor: Colors.PINK,
-    borderRadius: 15,
+    top: 0,
+    left: -25,
+    right: -25,
+    backgroundColor: "#fff",
     padding: 20,
-    width: 250,
-    zIndex: 150,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 6,
-    borderWidth: 2,
-    borderColor: Colors.PRIMARY, // Border with PRIMARY color
+    borderRadius: 10,
+    zIndex: 200,
+
+    height: 253,
   },
-  menuTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
-    textAlign: "center",
-    color: Colors.PRIMARY,
+  menuContainer: {
+    marginTop: 35,
   },
   menuItem: {
-    backgroundColor: "#442c2e",
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    marginBottom: 5,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: Colors.PRIMARY, // Border for each button-like item
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+    justifyContent: "center",
   },
   menuItemText: {
-    fontSize: 18,
-    color: Colors.PINK,
-    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  firstMenuItem: {
+    marginTop: 10,
+  },
+  loadingLogo: {
+    width: 100,
+    height: 100,
+    alignSelf: "center",
+    position: "absolute",
+    top: "50%", // Positioning might be off due to percentage-based marginTop
+    left: "50%",
+    marginTop: -50, // Half of the logo height to center it
+    marginLeft: -50, // Half of the logo width to center it
   },
 });
 

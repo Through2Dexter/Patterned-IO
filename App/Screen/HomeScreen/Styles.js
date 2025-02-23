@@ -2,6 +2,23 @@ import { StyleSheet } from "react-native";
 import Colors from "../../Utils/Colors"; // Import your color constants
 
 const styles = StyleSheet.create({
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.6)", // Dim background
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    opacity: 0.9,
+  },
+
   container: {
     flex: 1,
   },
@@ -65,12 +82,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     zIndex: 50,
   },
-  loadingLogo: {
-    width: 100,
-    height: 100,
-    alignSelf: "center",
-    marginTop: "50%", // Adjust this for centering
-  },
+
   modalContainer: {
     position: "absolute",
     top: "30%",
@@ -136,16 +148,6 @@ const styles = StyleSheet.create({
   },
   firstMenuItem: {
     marginTop: 10,
-  },
-  loadingLogo: {
-    width: 100,
-    height: 100,
-    alignSelf: "center",
-    position: "absolute",
-    top: "50%", // Positioning might be off due to percentage-based marginTop
-    left: "50%",
-    marginTop: -50, // Half of the logo height to center it
-    marginLeft: -50, // Half of the logo width to center it
   },
 });
 

@@ -30,13 +30,6 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": ["expo-font"],
-    "extra": {
-      "eas": {
-        "projectId": "0cb42dc1-5a08-46e2-8368-8bdb0ff6920b",
-        "expoClientId": "1041061755455-dqgpjsuap2gb4uuiep6j3snn24rngde0.apps.googleusercontent.com",
-        "iosClientId": "1041061755455-pt16baqv7i8tpt0oru133bbd9adr1tj6.apps.googleusercontent.com",
-        "androidClientId": "1041061755455-ovu8vc5qqfdtkep1jsp9ev5sbqd09iol.apps.googleusercontent.com"
-      }
-    }
+    "extra": {}
   }
 }

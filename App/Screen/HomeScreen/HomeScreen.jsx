@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   Image,
+  Easing,
   Animated,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
@@ -15,6 +16,7 @@ import Colors from "../../Utils/Colors";
 import styles from "./Styles";
 import { Ionicons } from "@expo/vector-icons";
 import * as Font from "expo-font"; // Importing expo-font
+import * as Location from "expo-location"; // Import Expo Location;
 
 const HomeScreen = () => {
   const [selectedService, setSelectedService] = useState("");
@@ -23,12 +25,56 @@ const HomeScreen = () => {
   const [fontLoaded, setFontLoaded] = useState(false);
   const [mapType, setMapType] = useState("standard"); // Default map type is standard
   const [loading, setLoading] = useState(true); // Loading state for map
+  const [userLocation, setUserLocation] = useState(null);
+  const [loadingLocation, setLoadingLocation] = useState(true);
 
   // Animated values for the menu container animation
   const menuAnim = {
     translateY: useState(new Animated.Value(-300))[0], // Start off-screen (top)
     opacity: useState(new Animated.Value(0))[0], // Start with no opacity
   };
+
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  // Function to loop animation
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.2,
+          duration: 800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        alert("Permission to access location was denied");
+        setLoadingLocation(false);
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setUserLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      });
+      setLoadingLocation(false);
+    })();
+  }, []);
 
   // Animated values for the service modal animation
   const modalAnim = {
@@ -173,49 +219,21 @@ const HomeScreen = () => {
   };
 
   // Logo pulsating animation
-  useEffect(() => {
-    if (loading) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.spring(logoAnim, {
-            toValue: 1.2,
-            friction: 2,
-            tension: 50,
-            useNativeDriver: true,
-          }),
-          Animated.spring(logoAnim, {
-            toValue: 1,
-            friction: 2,
-            tension: 50,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    }
-  }, [loading]);
 
   return (
     <View style={styles.container}>
-      {loading && (
-        <View style={styles.overlay}>
-          {/* Pulsating Logo */}
-          <Animated.Image
-            source={require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/logo_.png")} // Add your logo here
-            style={[styles.loadingLogo, { transform: [{ scale: logoAnim }] }]}
-          />
-        </View>
-      )}
-
       <MapView
         style={styles.map}
-        mapType={mapType} // Bind mapType to the selected value
-        initialRegion={{
-          latitude: 51.5074,
-          longitude: -0.1278,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-        onMapReady={onMapReady} // Map ready event handler
+        mapType={mapType}
+        region={
+          userLocation || {
+            latitude: 51.5074, // Default to London if location is not available
+            longitude: -0.1278,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }
+        }
+        onMapReady={onMapReady}
       >
         {filteredProviders.map((provider) => (
           <Marker

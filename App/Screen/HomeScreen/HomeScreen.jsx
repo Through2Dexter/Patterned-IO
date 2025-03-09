@@ -309,7 +309,7 @@ const HomeScreen = () => {
     if (score >= 75) {
       return { color: "green" }; // High reliability
     } else if (score >= 50) {
-      return { color: "yellow" }; // Medium reliability
+      return { color: "#f7ad23" }; // Medium reliability
     } else {
       return { color: "red" }; // Low reliability
     }

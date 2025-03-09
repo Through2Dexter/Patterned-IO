@@ -44,6 +44,17 @@ const ProviderProfile = ({ route }) => {
     extrapolate: "clamp",
   });
 
+  // Function to determine the color of the reliability score
+  const getScoreColor = (score) => {
+    if (score >= 75) {
+      return Colors.GREEN; // High reliability
+    } else if (score >= 50) {
+      return Colors.YELLOW; // Medium reliability
+    } else {
+      return Colors.RED; // Low reliability
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -53,7 +64,12 @@ const ProviderProfile = ({ route }) => {
           <View style={styles.infoContainer}>
             <Text style={styles.name}>{provider.name}</Text>
             <Text style={styles.service}>Service: {provider.service}</Text>
-            <Text style={styles.score}>
+            <Text
+              style={[
+                styles.score,
+                { color: getScoreColor(provider.reliabilityScore) }, // Dynamically set color
+              ]}
+            >
               Reliability Score: {provider.reliabilityScore}
             </Text>
           </View>
@@ -160,7 +176,7 @@ const styles = StyleSheet.create({
   },
   score: {
     fontSize: 16,
-    color: Colors.PRIMARY,
+    fontWeight: "bold", // Make the score bold for emphasis
     marginTop: 5,
   },
   servicesSection: {

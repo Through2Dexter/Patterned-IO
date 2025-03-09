@@ -13,6 +13,8 @@ import {
 import MapView, { Marker } from "react-native-maps";
 import { Picker } from "@react-native-picker/picker";
 import Colors from "../../Utils/Colors";
+import { useNavigation } from "@react-navigation/native";
+
 import styles from "./Styles";
 import { Ionicons } from "@expo/vector-icons";
 import * as Font from "expo-font"; // Importing expo-font
@@ -29,6 +31,7 @@ const HomeScreen = () => {
   const [loadingLocation, setLoadingLocation] = useState(true);
   const [selectedServiceProvider, setSelectedServiceProvider] = useState(null);
   const [isProviderModalVisible, setIsProviderModalVisible] = useState(false);
+  const navigation = useNavigation();
 
   // Animated values for the menu container animation
   const menuAnim = {
@@ -107,7 +110,12 @@ const HomeScreen = () => {
       lon: -0.1278,
       service: "hair",
       logo: require("../../../Assets/Images/provider1.jpg"),
-      reliabilityScore: 100, // Starts at 100
+      reliabilityScore: 100,
+      gallery: [
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/hairstylistprofile1.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/hairstylistprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/hairstylistprofile3.jpg"),
+      ],
     },
     {
       id: 2,
@@ -116,7 +124,12 @@ const HomeScreen = () => {
       lon: -0.1181,
       service: "barbers",
       logo: require("../../../Assets/Images/provider2.jpg"),
-      reliabilityScore: 90, // Example score
+      reliabilityScore: 90,
+      gallery: [
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile1.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile3.jpg"),
+      ],
     },
     {
       id: 3,
@@ -125,7 +138,12 @@ const HomeScreen = () => {
       lon: -0.0877,
       service: "nails",
       logo: require("../../../Assets/Images/provider4.jpg"),
-      reliabilityScore: 105, // Example score
+      reliabilityScore: 105,
+      gallery: [
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+      ],
     },
     {
       id: 4,
@@ -135,6 +153,11 @@ const HomeScreen = () => {
       service: "brows",
       logo: require("../../../Assets/Images/provider5.jpg"),
       reliabilityScore: 110, // Example score
+      gallery: [
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+      ],
     },
     {
       id: 5,
@@ -144,6 +167,11 @@ const HomeScreen = () => {
       service: "facials",
       logo: require("../../../Assets/Images/provider7.jpg"),
       reliabilityScore: 120, // Example score
+      gallery: [
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+      ],
     },
     {
       id: 6,
@@ -153,6 +181,11 @@ const HomeScreen = () => {
       service: "makeup",
       logo: require("../../../Assets/Images/provider6.jpg"),
       reliabilityScore: 95, // Example score
+      gallery: [
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+      ],
     },
     {
       id: 7,
@@ -162,6 +195,11 @@ const HomeScreen = () => {
       service: "dental",
       logo: require("../../../Assets/Images/provider8.jpg"),
       reliabilityScore: 70, // Example score
+      gallery: [
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+      ],
     },
     {
       id: 8,
@@ -171,6 +209,11 @@ const HomeScreen = () => {
       service: "lashes",
       logo: require("../../../Assets/Images/provider9.jpg"),
       reliabilityScore: 90, // Example score
+      gallery: [
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+      ],
     },
     {
       id: 9,
@@ -180,6 +223,11 @@ const HomeScreen = () => {
       service: "hair removal",
       logo: require("../../../Assets/Images/provider10.jpg"),
       reliabilityScore: 40, // Example score
+      gallery: [
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+      ],
     },
   ];
 
@@ -348,7 +396,12 @@ const HomeScreen = () => {
             <View style={{ flex: 1, justifyContent: "flex-end" }}>
               <TouchableOpacity
                 style={styles.providerCloseButton}
-                onPress={() => setIsProviderModalVisible(false)}
+                onPress={() => {
+                  setIsProviderModalVisible(false);
+                  navigation.navigate("ProviderProfile", {
+                    provider: selectedServiceProvider,
+                  });
+                }}
               >
                 <Text style={styles.providerCloseButtonText}>Tap in</Text>
               </TouchableOpacity>

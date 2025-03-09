@@ -27,6 +27,8 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(true); // Loading state for map
   const [userLocation, setUserLocation] = useState(null);
   const [loadingLocation, setLoadingLocation] = useState(true);
+  const [selectedServiceProvider, setSelectedServiceProvider] = useState(null);
+  const [isProviderModalVisible, setIsProviderModalVisible] = useState(false);
 
   // Animated values for the menu container animation
   const menuAnim = {
@@ -100,46 +102,84 @@ const HomeScreen = () => {
   const serviceProviders = [
     {
       id: 1,
-      name: "Hair Stylist 1",
+      name: "SallyBraids",
       lat: 51.5074,
       lon: -0.1278,
       service: "hair",
+      logo: require("../../../Assets/Images/provider1.jpg"),
+      reliabilityScore: 100, // Starts at 100
     },
-    { id: 2, name: "Barber 1", lat: 51.5075, lon: -0.1277, service: "barbers" },
+    {
+      id: 2,
+      name: "TkTrims",
+      lat: 51.5292,
+      lon: -0.1181,
+      service: "barbers",
+      logo: require("../../../Assets/Images/provider2.jpg"),
+      reliabilityScore: 90, // Example score
+    },
     {
       id: 3,
-      name: "Nail Tech 1",
-      lat: 51.5073,
-      lon: -0.1279,
+      name: "NailsByP",
+      lat: 51.5055,
+      lon: -0.0877,
       service: "nails",
+      logo: require("../../../Assets/Images/provider4.jpg"),
+      reliabilityScore: 105, // Example score
     },
     {
       id: 4,
-      name: "Loctician 1",
-      lat: 51.508,
-      lon: -0.128,
-      service: "loctitians",
+      name: "BrowBoss",
+      lat: 51.5111,
+      lon: -0.142,
+      service: "brows",
+      logo: require("../../../Assets/Images/provider5.jpg"),
+      reliabilityScore: 110, // Example score
     },
     {
       id: 5,
-      name: "Facial Expert 1",
-      lat: 51.509,
-      lon: -0.129,
+      name: "GentleGlow",
+      lat: 51.5033,
+      lon: -0.1195,
       service: "facials",
+      logo: require("../../../Assets/Images/provider7.jpg"),
+      reliabilityScore: 120, // Example score
     },
     {
       id: 6,
-      name: "Makeup Artist 1",
-      lat: 51.51,
-      lon: -0.13,
+      name: "DonebyDona",
+      lat: 51.5134,
+      lon: -0.1269,
       service: "makeup",
+      logo: require("../../../Assets/Images/provider6.jpg"),
+      reliabilityScore: 95, // Example score
     },
     {
       id: 7,
-      name: "Dental Specialist 1",
-      lat: 51.511,
-      lon: -0.131,
+      name: "GiddyGrills",
+      lat: 51.4995,
+      lon: -0.13,
       service: "dental",
+      logo: require("../../../Assets/Images/provider8.jpg"),
+      reliabilityScore: 70, // Example score
+    },
+    {
+      id: 8,
+      name: "LashClub",
+      lat: 51.4995,
+      lon: -0.1417,
+      service: "lashes",
+      logo: require("../../../Assets/Images/provider9.jpg"),
+      reliabilityScore: 90, // Example score
+    },
+    {
+      id: 9,
+      name: "WendyWaxy",
+      lat: 51.4995,
+      lon: -0.108,
+      service: "hair removal",
+      logo: require("../../../Assets/Images/provider10.jpg"),
+      reliabilityScore: 40, // Example score
     },
   ];
 
@@ -217,8 +257,15 @@ const HomeScreen = () => {
   const onMapReady = () => {
     setLoading(false); // Map has loaded, hide the loading state
   };
-
-  // Logo pulsating animation
+  const getScoreStyle = (score) => {
+    if (score >= 75) {
+      return { color: "green" }; // High reliability
+    } else if (score >= 50) {
+      return { color: "yellow" }; // Medium reliability
+    } else {
+      return { color: "red" }; // Low reliability
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -244,9 +291,71 @@ const HomeScreen = () => {
             pinColor={
               selectedService === provider.service ? Colors.PRIMARY : "#3388FF"
             }
-          />
+            onPress={() => {
+              setSelectedServiceProvider(provider); // Set the selected provider
+              setIsProviderModalVisible(true); // Show the modal for the selected provider
+            }}
+          >
+            <View style={styles.markerContainer}>
+              <Image source={provider.logo} style={styles.markerImage} />
+            </View>
+          </Marker>
         ))}
       </MapView>
+
+      {isProviderModalVisible && selectedServiceProvider && (
+        <Modal
+          animationType="none" // Remove the swipe-up animation from the modal itself
+          transparent={true}
+          visible={isProviderModalVisible}
+          onRequestClose={() => setIsProviderModalVisible(false)}
+        >
+          {/* The overlay behind the modal */}
+          <TouchableWithoutFeedback
+            onPress={() => setIsProviderModalVisible(false)}
+          >
+            <View style={styles.providerOverlay} />
+          </TouchableWithoutFeedback>
+
+          {/* Updated Modal Container */}
+          <View style={styles.providerModalContainer}>
+            <Text style={styles.providerModalTitle}>
+              {selectedServiceProvider.name}
+            </Text>
+            <Image
+              source={selectedServiceProvider.logo}
+              style={styles.providerModalImage}
+            />
+            <Text style={styles.providerModalText}>
+              Service: {selectedServiceProvider.service}
+            </Text>
+
+            {/* Reliability Score Section */}
+            <View style={styles.reliabilityContainer}>
+              <Text style={styles.reliabilityScoreLabel}>
+                Reliability Score:
+              </Text>
+              <Text
+                style={[
+                  styles.reliabilityScoreValue,
+                  getScoreStyle(selectedServiceProvider.reliabilityScore),
+                ]}
+              >
+                {selectedServiceProvider.reliabilityScore}
+              </Text>
+            </View>
+            {/* Touchable Container for "Tap in" Button */}
+            <View style={{ flex: 1, justifyContent: "flex-end" }}>
+              <TouchableOpacity
+                style={styles.providerCloseButton}
+                onPress={() => setIsProviderModalVisible(false)}
+              >
+                <Text style={styles.providerCloseButtonText}>Tap in</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
 
       {/* Profile Button */}
       <TouchableOpacity
@@ -323,10 +432,11 @@ const HomeScreen = () => {
                 "barbers",
                 "nails",
                 "lashes",
-                "loctitians",
+                "brows",
                 "facials",
                 "makeup",
                 "dental",
+                "hair removal",
               ].map((service) => (
                 <Picker.Item
                   key={service}

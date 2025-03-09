@@ -149,6 +149,87 @@ const styles = StyleSheet.create({
   firstMenuItem: {
     marginTop: 10,
   },
+  markerContainer: {
+    width: 50, // Size of the circular container
+    height: 50, // Size of the circular container
+    borderRadius: 25, // Make it circular
+    borderWidth: 3, // Optional: adds border around the circle
+    borderColor: Colors.PRIMARY, // Optional: white border around the circle
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden", // Ensures the image stays within the circle
+  },
+  markerImage: {
+    width: 45, // Size of the image inside the circle
+    height: 45, // Size of the image inside the circle
+    borderRadius: 22.5, // Half of the image width/height to keep it circular
+    resizeMode: "cover", // Ensures the image covers the entire area of the circle
+  },
+  providerOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent black overlay
+    position: "absolute", // Position it on top of the screen
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0, // Fill the entire screen
+  },
+  providerModalContainer: {
+    position: "absolute",
+    top: "25%",
+    left: "5%",
+    right: "5%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    height: "47%",
+    backgroundColor: Colors.PINK,
+  },
+  providerModalTitle: {
+    fontSize: 42,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: Colors.PRIMARY,
+    fontFamily: "Outfit-Bold",
+  },
+  providerModalImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 70,
+    marginBottom: 10,
+    borderWidth: 5,
+    borderColor: Colors.PRIMARY,
+  },
+  providerModalText: {
+    fontSize: 16,
+  },
+  providerCloseButton: {
+    backgroundColor: Colors.PRIMARY,
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  providerCloseButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  reliabilityScoreLabel: {
+    fontSize: 26,
+    marginTop: 10,
+    fontWeight: "bold",
+    fontFamily: "Outfit-Bold",
+  },
+  reliabilityScoreValue: {
+    fontSize: 48,
+    marginTop: 5,
+    textAlign: "center",
+    justifyContent: "center",
+    fontWeight: "900",
+  },
 });
 
 export default styles;

@@ -9,28 +9,27 @@ import {
   Dimensions,
   TouchableOpacity,
   Animated,
+  Linking,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import Colors from "../../Utils/Colors"; // Ensure this file exports PRIMARY and PINK
+import Colors from "../../Utils/Colors";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 const ProviderProfile = ({ route }) => {
-  const { provider } = route.params;
+  const { provider } = route.params; // Get provider passed from the homepage
   const navigation = useNavigation();
 
-  const imageData = provider.gallery || []; // Use provider's gallery images
-  const scrollX = new Animated.Value(0); // Initialize scrollX as Animated.Value
+  const imageData = provider.gallery || [];
+  const scrollX = new Animated.Value(0);
 
-  // Handle scroll to update scroll position
   const handleScroll = (event) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
-    scrollX.setValue(contentOffsetX); // Set the value for scrollX
+    scrollX.setValue(contentOffsetX);
   };
 
-  // Determine the opacity for the fade effect based on scroll position
   const fadeLeft = scrollX.interpolate({
     inputRange: [0, 100],
-    outputRange: [1, 0], // Fully visible at start, fade out to the left
+    outputRange: [1, 0],
     extrapolate: "clamp",
   });
 
@@ -40,84 +39,125 @@ const ProviderProfile = ({ route }) => {
       Dimensions.get("window").width - 50,
       Dimensions.get("window").width,
     ],
-    outputRange: [0, 1, 0], // Fade in as we scroll, and fade out at the end
+    outputRange: [0, 1, 0],
     extrapolate: "clamp",
   });
 
-  // Function to determine the color of the reliability score
   const getScoreColor = (score) => {
     if (score >= 75) {
-      return Colors.GREEN; // High reliability
+      return Colors.GREEN;
     } else if (score >= 50) {
-      return Colors.YELLOW; // Medium reliability
+      return Colors.YELLOW;
     } else {
-      return Colors.RED; // Low reliability
+      return Colors.RED;
     }
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Header Section */}
-        <View style={styles.headerContainer}>
-          <Image source={provider.logo} style={styles.profileImage} />
-          <View style={styles.infoContainer}>
-            <Text style={styles.name}>{provider.name}</Text>
-            <Text style={styles.service}>Service: {provider.service}</Text>
-            <Text
-              style={[
-                styles.score,
-                { color: getScoreColor(provider.reliabilityScore) }, // Dynamically set color
-              ]}
-            >
-              Reliability Score: {provider.reliabilityScore}
-            </Text>
+        <ScrollView
+          style={styles.scrollableContent}
+          contentContainerStyle={styles.scrollableContentContainer}
+        >
+          <View style={styles.headerContainer}>
+            <Image source={provider.logo} style={styles.profileImage} />
+            <View style={styles.infoContainer}>
+              <Text style={styles.name}>{provider.name}</Text>
+              <Text style={styles.service}>Service: {provider.service}</Text>
+              <Text
+                style={[
+                  styles.score,
+                  { color: getScoreColor(provider.reliabilityScore) },
+                ]}
+              >
+                Reliability Score: {provider.reliabilityScore}
+              </Text>
+            </View>
           </View>
-        </View>
 
-        {/* Action Buttons Section */}
-        <View style={styles.servicesSection}>
-          <View style={styles.servicesContainer}>
-            <Animated.View style={[styles.fadeLeft, { opacity: fadeLeft }]} />
+          <View style={styles.servicesSection}>
+            <View style={styles.servicesContainer}>
+              <Animated.View style={[styles.fadeLeft, { opacity: fadeLeft }]} />
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+                contentContainerStyle={styles.servicesButtonsContainer}
+              >
+                {[
+                  "Book now",
+                  "Gallery",
+                  "Emergency slot",
+                  "Services",
+                  "Message",
+                  "Reviews",
+                  "About",
+                ].map((title, index) => (
+                  <TouchableOpacity key={index} style={styles.serviceButton}>
+                    <Text style={styles.serviceButtonText}>{title}</Text>
+                  </TouchableOpacity>
+                ))}
+
+                <TouchableOpacity
+                  style={styles.serviceButton}
+                  onPress={() => {
+                    const url = `https://www.google.com/maps?q=${provider.latitude},${provider.longitude}`;
+                    Linking.openURL(url);
+                  }}
+                >
+                  <Text style={styles.serviceButtonText}>Get Directions</Text>
+                </TouchableOpacity>
+              </ScrollView>
+              <Animated.View
+                style={[styles.fadeRight, { opacity: fadeRight }]}
+              />
+            </View>
+          </View>
+
+          <View style={styles.gallerySection}>
             <ScrollView
               horizontal
+              contentContainerStyle={styles.galleryContainer}
               showsHorizontalScrollIndicator={false}
-              onScroll={handleScroll}
-              scrollEventThrottle={16}
-              contentContainerStyle={styles.servicesButtonsContainer}
             >
-              {[
-                "Book now",
-                "Gallery",
-                "Emergency slot",
-                "Services",
-                "Message us",
-                "Reviews",
-              ].map((title, index) => (
-                <TouchableOpacity key={index} style={styles.serviceButton}>
-                  <Text style={styles.serviceButtonText}>{title}</Text>
-                </TouchableOpacity>
+              {imageData.map((item, index) => (
+                <Image key={index} source={item} style={styles.postImage} />
               ))}
             </ScrollView>
-            <Animated.View style={[styles.fadeRight, { opacity: fadeRight }]} />
           </View>
-        </View>
 
-        {/* Horizontal Scrollable Image Gallery */}
-        <View style={styles.gallerySection}>
-          <ScrollView
-            horizontal
-            contentContainerStyle={styles.galleryContainer}
-            showsHorizontalScrollIndicator={false}
-          >
-            {imageData.map((item, index) => (
-              <Image key={index} source={item} style={styles.postImage} />
-            ))}
-          </ScrollView>
-        </View>
+          {/* Services Section */}
+          <View style={styles.servicesListSection}>
+            <Text style={styles.sectionTitle}>Services</Text>
+            <ScrollView
+              contentContainerStyle={styles.servicesListContainer}
+              showsVerticalScrollIndicator={false}
+            >
+              {provider.services &&
+                provider.services.map((service, index) => (
+                  <View key={index} style={styles.serviceItem}>
+                    <View style={styles.serviceInfo}>
+                      <Text style={styles.serviceName}>{service.name}</Text>
+                      <Text style={styles.serviceDetails}>
+                        Price: ${service.price} | Duration: {service.duration}{" "}
+                        mins
+                      </Text>
+                      <Text style={styles.serviceNote}>{service.note}</Text>
+                    </View>
+                    <TouchableOpacity style={styles.checkAvailabilityButton}>
+                      <Text style={styles.checkAvailabilityText}>
+                        Check Availability
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+            </ScrollView>
+          </View>
+        </ScrollView>
       </View>
 
-      {/* Footer Section */}
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.footerButton}
@@ -131,7 +171,7 @@ const ProviderProfile = ({ route }) => {
 };
 
 const windowWidth = Dimensions.get("window").width;
-const imageSize = windowWidth / 3 - 10; // Adjust spacing
+const imageSize = windowWidth / 3 - 10;
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -141,6 +181,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.PINK,
+  },
+  scrollableContent: {
+    flex: 1,
+    marginBottom: 60, // This will leave space for the fixed footer
+  },
+  scrollableContentContainer: {
     padding: 15,
   },
   headerContainer: {
@@ -153,7 +199,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    borderWidth: 2,
+    borderWidth: 5,
     borderColor: Colors.PRIMARY,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -165,7 +211,7 @@ const styles = StyleSheet.create({
     marginTop: 10, // Space between the image and the text
   },
   name: {
-    fontSize: 22,
+    fontSize: 32,
     fontWeight: "bold",
     color: Colors.PRIMARY,
   },
@@ -238,6 +284,66 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.2,
     shadowRadius: 10,
+  },
+  servicesListSection: {
+    marginTop: 20,
+    paddingBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: Colors.PRIMARY,
+    marginBottom: 10,
+    marginTop: -30,
+    textAlign: "center",
+    justifyContent: "center",
+  },
+  servicesListContainer: {
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  serviceItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.WHITE,
+    marginBottom: 15,
+    padding: 10,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+  },
+  serviceInfo: {
+    flex: 1,
+  },
+  serviceName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: Colors.PRIMARY,
+  },
+  serviceDetails: {
+    fontSize: 14,
+    color: Colors.GRAY,
+    marginTop: 5,
+  },
+  serviceNote: {
+    fontSize: 12,
+    color: Colors.GRAY,
+    marginTop: 5,
+  },
+  checkAvailabilityButton: {
+    backgroundColor: Colors.PRIMARY,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+    borderRadius: 7,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkAvailabilityText: {
+    color: "white",
+    fontSize: 11,
+    fontWeight: "bold",
   },
 });
 

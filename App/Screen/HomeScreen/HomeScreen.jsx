@@ -116,6 +116,32 @@ const HomeScreen = () => {
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/hairstylistprofile2.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/hairstylistprofile3.jpg"),
       ],
+      services: [
+        {
+          name: "Basic Braids",
+          price: 30,
+          duration: 60,
+          note: "Simple braids for your hair, a stylish and quick option.",
+        },
+        {
+          name: "Box Braids",
+          price: 50,
+          duration: 120,
+          note: "Traditional box braids with various color options.",
+        },
+        {
+          name: "Cornrows",
+          price: 40,
+          duration: 90,
+          note: "Tight braids close to the scalp for a clean, neat look.",
+        },
+        {
+          name: "Braid Removal",
+          price: 25,
+          duration: 45,
+          note: "Removal of braids, leaving your hair soft and free of tangles.",
+        },
+      ],
     },
     {
       id: 2,
@@ -129,6 +155,32 @@ const HomeScreen = () => {
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile1.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile3.jpg"),
+      ],
+      services: [
+        {
+          name: "Haircut",
+          price: 25,
+          duration: 30,
+          note: "A classic haircut, styled to your preference.",
+        },
+        {
+          name: "Beard Trim",
+          price: 15,
+          duration: 20,
+          note: "A sharp trim for your beard to keep you looking fresh.",
+        },
+        {
+          name: "Shave",
+          price: 20,
+          duration: 30,
+          note: "A close shave for a clean and smooth finish.",
+        },
+        {
+          name: "Haircut + Beard Trim",
+          price: 40,
+          duration: 50,
+          note: "Get a haircut and beard trim in one appointment for the perfect look.",
+        },
       ],
     },
     {
@@ -144,6 +196,32 @@ const HomeScreen = () => {
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
       ],
+      services: [
+        {
+          name: "Basic Manicure",
+          price: 20,
+          duration: 30,
+          note: "A classic manicure with a polish of your choice.",
+        },
+        {
+          name: "Gel Nails",
+          price: 40,
+          duration: 45,
+          note: "Long-lasting gel nails with a variety of colors.",
+        },
+        {
+          name: "Nail Art",
+          price: 50,
+          duration: 60,
+          note: "Intricate nail designs and decorations, tailored to your style.",
+        },
+        {
+          name: "Pedicure",
+          price: 35,
+          duration: 40,
+          note: "A relaxing pedicure with a soak, scrub, and polish.",
+        },
+      ],
     },
     {
       id: 4,
@@ -152,11 +230,37 @@ const HomeScreen = () => {
       lon: -0.142,
       service: "brows",
       logo: require("../../../Assets/Images/provider5.jpg"),
-      reliabilityScore: 110, // Example score
+      reliabilityScore: 110,
       gallery: [
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+      ],
+      services: [
+        {
+          name: "Eyebrow Shaping",
+          price: 15,
+          duration: 20,
+          note: "Shaping your eyebrows to complement your facial features.",
+        },
+        {
+          name: "Eyebrow Tinting",
+          price: 20,
+          duration: 30,
+          note: "Tinting your eyebrows to match your hair color.",
+        },
+        {
+          name: "Eyebrow Threading",
+          price: 25,
+          duration: 30,
+          note: "Precise threading for clean and defined eyebrows.",
+        },
+        {
+          name: "Brow and Lash Combo",
+          price: 35,
+          duration: 40,
+          note: "Combination of eyebrow shaping and lash tinting.",
+        },
       ],
     },
     {
@@ -166,11 +270,37 @@ const HomeScreen = () => {
       lon: -0.1195,
       service: "facials",
       logo: require("../../../Assets/Images/provider7.jpg"),
-      reliabilityScore: 120, // Example score
+      reliabilityScore: 120,
       gallery: [
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+      ],
+      services: [
+        {
+          name: "Classic Facial",
+          price: 60,
+          duration: 60,
+          note: "A deep cleansing facial to remove impurities and rejuvenate your skin.",
+        },
+        {
+          name: "Anti-Aging Facial",
+          price: 80,
+          duration: 75,
+          note: "A facial designed to reduce the appearance of wrinkles and fine lines.",
+        },
+        {
+          name: "Hydrating Facial",
+          price: 70,
+          duration: 60,
+          note: "A hydrating facial to restore moisture and radiance to your skin.",
+        },
+        {
+          name: "Acne Facial",
+          price: 75,
+          duration: 75,
+          note: "A facial targeted at treating acne and blemishes.",
+        },
       ],
     },
     {
@@ -180,11 +310,37 @@ const HomeScreen = () => {
       lon: -0.1269,
       service: "makeup",
       logo: require("../../../Assets/Images/provider6.jpg"),
-      reliabilityScore: 95, // Example score
+      reliabilityScore: 95,
       gallery: [
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+      ],
+      services: [
+        {
+          name: "Full Face Makeup",
+          price: 100,
+          duration: 90,
+          note: "Complete makeup application for any occasion.",
+        },
+        {
+          name: "Bridal Makeup",
+          price: 150,
+          duration: 120,
+          note: "Special makeup for brides on their wedding day.",
+        },
+        {
+          name: "Airbrush Makeup",
+          price: 120,
+          duration: 90,
+          note: "Flawless makeup application using airbrush technology.",
+        },
+        {
+          name: "Makeup Consultation",
+          price: 50,
+          duration: 30,
+          note: "Consultation to choose the best makeup look for your skin tone.",
+        },
       ],
     },
     {
@@ -194,39 +350,77 @@ const HomeScreen = () => {
       lon: -0.13,
       service: "dental",
       logo: require("../../../Assets/Images/provider8.jpg"),
-      reliabilityScore: 70, // Example score
+      reliabilityScore: 70,
       gallery: [
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+      ],
+      services: [
+        {
+          name: "Teeth Cleaning",
+          price: 50,
+          duration: 45,
+          note: "Thorough cleaning to remove plaque and tartar buildup.",
+        },
+        {
+          name: "Teeth Whitening",
+          price: 100,
+          duration: 60,
+          note: "A professional teeth whitening treatment for a brighter smile.",
+        },
+        {
+          name: "Dental Checkup",
+          price: 30,
+          duration: 30,
+          note: "Routine dental checkup to ensure overall dental health.",
+        },
+        {
+          name: "Fillings",
+          price: 80,
+          duration: 60,
+          note: "Filling cavities to restore the functionality of your teeth.",
+        },
       ],
     },
     {
       id: 8,
       name: "LashClub",
       lat: 51.4995,
-      lon: -0.1417,
+      lon: -0.132,
       service: "lashes",
       logo: require("../../../Assets/Images/provider9.jpg"),
-      reliabilityScore: 90, // Example score
+      reliabilityScore: 85,
       gallery: [
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
         require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
       ],
-    },
-    {
-      id: 9,
-      name: "WendyWaxy",
-      lat: 51.4995,
-      lon: -0.108,
-      service: "hair removal",
-      logo: require("../../../Assets/Images/provider10.jpg"),
-      reliabilityScore: 40, // Example score
-      gallery: [
-        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
-        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
-        require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/Images/barbersprofile2.jpg"),
+      services: [
+        {
+          name: "Lash Extensions",
+          price: 120,
+          duration: 90,
+          note: "Beautiful lash extensions applied for a fuller look.",
+        },
+        {
+          name: "Lash Lift",
+          price: 70,
+          duration: 60,
+          note: "A lash lift to give your lashes a natural curl.",
+        },
+        {
+          name: "Lash Tinting",
+          price: 40,
+          duration: 30,
+          note: "Tinting your lashes for a darker, more defined look.",
+        },
+        {
+          name: "Removal of Lash Extensions",
+          price: 50,
+          duration: 30,
+          note: "Removal of lash extensions without damaging natural lashes.",
+        },
       ],
     },
   ];

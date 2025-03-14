@@ -16,31 +16,27 @@ export default function LoginScreen({ navigation }) {
   // Run animations once fonts are loaded
   useEffect(() => {
     if (fontsLoaded) {
-      // Animate the logo from bottom to center
       Animated.timing(logoTranslateY, {
         toValue: 0,
         duration: 1000,
         useNativeDriver: true,
       }).start();
 
-      // Animate buttons to fade in after logo animation
       Animated.timing(buttonsOpacity, {
         toValue: 1,
         duration: 500,
-        delay: 1200, // Wait for logo animation to complete
+        delay: 1200,
         useNativeDriver: true,
       }).start();
     }
-  }, [fontsLoaded]); // Re-run animation only after fonts are loaded
+  }, [fontsLoaded]);
 
-  // Wait for fonts to load before rendering the UI
   if (!fontsLoaded) {
-    return <Text>Loading...</Text>; // Temporary loading text to check if font is loaded
+    return <Text>Loading...</Text>;
   }
 
   return (
     <View style={styles.container}>
-      {/* Logo with animation */}
       <Animated.View
         style={[
           styles.logoContainer,
@@ -55,60 +51,58 @@ export default function LoginScreen({ navigation }) {
         />
       </Animated.View>
 
-      {/* Heading */}
       <Text style={styles.heading}>Let's pattern it...</Text>
 
-      {/* Buttons with fade-in animation */}
       <Animated.View style={{ opacity: buttonsOpacity }}>
-        {/* Apple Login Button */}
+        {/* Login Button */}
         <TouchableOpacity
           style={[
             styles.button,
             {
               backgroundColor:
-                isPressed === "apple" ? Colors.WHITE : Colors.PRIMARY,
+                isPressed === "login" ? Colors.WHITE : Colors.PRIMARY,
               borderWidth: 2,
               borderColor: Colors.PRIMARY,
             },
           ]}
           onPress={() => {
-            navigation.navigate("HomeScreen"); // Navigate to HomeScreen
-            setIsPressed("apple"); // Mark Apple button as pressed
+            navigation.navigate("AuthFormScreen", { mode: "login" }); // Specify mode for login
+            setIsPressed("login");
           }}
         >
           <Text
             style={[
               styles.buttonText,
-              { color: isPressed === "apple" ? Colors.PRIMARY : Colors.WHITE },
+              { color: isPressed === "login" ? Colors.PRIMARY : Colors.WHITE },
             ]}
           >
-            Login with Apple
+            Log in
           </Text>
         </TouchableOpacity>
 
-        {/* Google Login Button */}
+        {/* Sign Up Button */}
         <TouchableOpacity
           style={[
             styles.button,
             {
               backgroundColor:
-                isPressed === "google" ? Colors.WHITE : Colors.PRIMARY,
+                isPressed === "signup" ? Colors.WHITE : Colors.PRIMARY,
               borderWidth: 2,
               borderColor: Colors.PRIMARY,
             },
           ]}
           onPress={() => {
-            navigation.navigate("HomeScreen"); // Navigate to HomeScreen
-            setIsPressed("google"); // Mark Google button as pressed
+            navigation.navigate("WelcomeScreen"); // 👈 changed from AuthFormScreen to WelcomeScreen
+            setIsPressed("signup");
           }}
         >
           <Text
             style={[
               styles.buttonText,
-              { color: isPressed === "google" ? Colors.PRIMARY : Colors.WHITE },
+              { color: isPressed === "signup" ? Colors.PRIMARY : Colors.WHITE },
             ]}
           >
-            Login with Google
+            Sign up
           </Text>
         </TouchableOpacity>
       </Animated.View>

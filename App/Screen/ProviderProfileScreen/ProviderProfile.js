@@ -1,262 +1,394 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   SafeAreaView,
   StyleSheet,
   Text,
   View,
-  TextInput,
-  Button,
   ScrollView,
-  ActivityIndicator,
+  Image,
+  Dimensions,
+  TouchableOpacity,
+  Animated,
+  Linking,
 } from "react-native";
-import { supabase } from "/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/supabase.js"; // Adjust the path accordingly
+import { useNavigation } from "@react-navigation/native";
 import Colors from "../../Utils/Colors";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
-export default function ProviderHomepage() {
-  const [providerData, setProviderData] = useState({
-    business_name: "",
-    service: "",
-    full_name: "",
-    email: "",
-    phone_number: "",
-    dob: "",
-    address: "",
-    bio: "",
-    about_us: "",
-    logo: "",
-    profile_picture: "",
-    certificates: [],
-    gallery: [],
-  });
+const ProviderProfile = ({ route }) => {
+  const { provider } = route.params; // Get provider passed from the homepage
+  const navigation = useNavigation();
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(""); // New error state to track errors
+  const imageData = provider.gallery || [];
+  const scrollX = new Animated.Value(0);
 
-  // Fetch provider data from Supabase (business_name, service only)
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true); // Start loading
-
-        // Query for specific fields from the 'service_providers' table
-        const { data, error } = await supabase
-          .from("service_providers")
-          .select("business_name, service")
-          .single(); // Use .single() to fetch one record
-
-        if (error) {
-          // Check for any error
-          setError(`Error fetching data: ${error.message}`); // Update error state
-          console.error("Error fetching provider data:", error.message);
-          setLoading(false);
-          return;
-        }
-
-        if (!data) {
-          // Handle case where no data is returned
-          setError("No data found for the provider.");
-          console.error("No data found for the provider.");
-          setLoading(false);
-          return;
-        }
-
-        // Set the provider data if successful
-        setProviderData((prevData) => ({
-          ...prevData,
-          business_name: data.business_name,
-          service: data.service,
-        }));
-
-        setLoading(false); // Done loading
-      } catch (error) {
-        // Catch any unexpected errors
-        setError(`Unexpected error: ${error.message}`);
-        console.error("Unexpected error:", error.message);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // Handle input changes
-  const handleChange = (field, value) => {
-    setProviderData((prevData) => ({
-      ...prevData,
-      [field]: value,
-    }));
+  const handleScroll = (event) => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    scrollX.setValue(contentOffsetX);
   };
 
-  // Save updated provider data
-  const handleSave = async () => {
-    try {
-      const { data, error } = await supabase.from("service_providers").upsert([
-        {
-          id: providerData.id, // Make sure the ID exists and is correct
-          ...providerData,
-        },
-      ]);
+  const fadeLeft = scrollX.interpolate({
+    inputRange: [0, 100],
+    outputRange: [1, 0],
+    extrapolate: "clamp",
+  });
 
-      if (error) {
-        setError(`Error updating provider data: ${error.message}`);
-        console.error("Error updating provider data:", error.message);
-        return;
-      }
+  const fadeRight = scrollX.interpolate({
+    inputRange: [
+      0,
+      Dimensions.get("window").width - 50,
+      Dimensions.get("window").width,
+    ],
+    outputRange: [0, 1, 0],
+    extrapolate: "clamp",
+  });
 
-      console.log("Provider data updated successfully:", data);
-    } catch (error) {
-      setError(`Error saving provider data: ${error.message}`);
-      console.error("Error saving provider data:", error.message);
+  const getScoreColor = (score) => {
+    if (score >= 75) {
+      return Colors.GREEN;
+    } else if (score >= 50) {
+      return Colors.YELLOW;
+    } else {
+      return Colors.RED;
     }
   };
 
-  // Loading state handling
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <ActivityIndicator size="large" color={Colors.PRIMARY} />
-      </SafeAreaView>
-    );
-  }
-
-  // Display error message if there is an error
-  if (error) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorMessage}>{error}</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.scrollableContent}>
-        <View style={styles.container}>
-          {/* Display business name and service */}
-          <Text style={styles.label}>Business Name:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.business_name}
-            onChangeText={(text) => handleChange("business_name", text)}
-            placeholder="Enter business name"
-          />
+      <View style={styles.container}>
+        <ScrollView
+          style={styles.scrollableContent}
+          contentContainerStyle={styles.scrollableContentContainer}
+        >
+          <View style={styles.headerContainer}>
+            <Image
+              source={{ uri: provider.profile_picture }}
+              style={styles.profileImage}
+            />
 
-          <Text style={styles.label}>Service:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.service}
-            onChangeText={(text) => handleChange("service", text)}
-            placeholder="Enter service"
-          />
+            <View style={styles.infoContainer}>
+              <Text style={styles.name}>{provider.business_name}</Text>
+              <Text style={styles.service}>Service: {provider.service}</Text>
+              <Text
+                style={[
+                  styles.score,
+                  { color: getScoreColor(provider.reliabilityScore) },
+                ]}
+              >
+                Reliability Score: {provider.reliabilityScore}
+              </Text>
+            </View>
+          </View>
 
-          {/* Editable fields for missing data */}
-          <Text style={styles.label}>Full Name:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.full_name}
-            onChangeText={(text) => handleChange("full_name", text)}
-            placeholder="Enter full name"
-          />
+          <View style={styles.servicesSection}>
+            <View style={styles.servicesContainer}>
+              <Animated.View style={[styles.fadeLeft, { opacity: fadeLeft }]} />
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+                contentContainerStyle={styles.servicesButtonsContainer}
+              >
+                {[
+                  "Book now",
+                  "Gallery",
+                  "Emergency slot",
+                  "Services",
+                  "Message",
+                  "Reviews",
+                  "About",
+                ].map((title, index) => (
+                  <TouchableOpacity key={index} style={styles.serviceButton}>
+                    <Text style={styles.serviceButtonText}>{title}</Text>
+                  </TouchableOpacity>
+                ))}
 
-          <Text style={styles.label}>Phone Number:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.phone_number}
-            onChangeText={(text) => handleChange("phone_number", text)}
-            placeholder="Enter phone number"
-          />
+                <TouchableOpacity
+                  style={styles.serviceButton}
+                  onPress={() => {
+                    const url = `https://www.google.com/maps?q=${provider.latitude},${provider.longitude}`;
+                    Linking.openURL(url);
+                  }}
+                >
+                  <Text style={styles.serviceButtonText}>Get Directions</Text>
+                </TouchableOpacity>
+              </ScrollView>
+              <Animated.View
+                style={[styles.fadeRight, { opacity: fadeRight }]}
+              />
+            </View>
+          </View>
 
-          <Text style={styles.label}>Date of Birth:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.dob}
-            onChangeText={(text) => handleChange("dob", text)}
-            placeholder="Enter date of birth"
-          />
+          <View style={styles.gallerySection}>
+            <ScrollView
+              horizontal
+              contentContainerStyle={styles.galleryContainer}
+              showsHorizontalScrollIndicator={false}
+            >
+              {imageData.map((item, index) => (
+                <Image
+                  key={index}
+                  source={{ uri: item }}
+                  style={styles.postImage}
+                />
+              ))}
+            </ScrollView>
+          </View>
 
-          <Text style={styles.label}>Address:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.address}
-            onChangeText={(text) => handleChange("address", text)}
-            placeholder="Enter address"
-          />
+          {/* Services Section */}
+          <View style={styles.servicesListSection}>
+            <Text style={styles.sectionTitle}>Services</Text>
+            <ScrollView
+              contentContainerStyle={styles.servicesListContainer}
+              showsVerticalScrollIndicator={false}
+            >
+              {provider.services &&
+                provider.services.map((service, index) => (
+                  <View key={index} style={styles.serviceItem}>
+                    <View style={styles.serviceInfo}>
+                      <Text style={styles.serviceName}>{service.name}</Text>
+                      <Text style={styles.serviceDetails}>
+                        Price: £{service.price} | Duration: {service.duration}{" "}
+                        mins
+                      </Text>
+                      <Text style={styles.serviceNote}>{service.note}</Text>
+                    </View>
+                    <TouchableOpacity style={styles.checkAvailabilityButton}>
+                      <Text style={styles.checkAvailabilityText}>
+                        Check Availability
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+            </ScrollView>
+          </View>
+        </ScrollView>
+      </View>
 
-          <Text style={styles.label}>Bio:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.bio}
-            onChangeText={(text) => handleChange("bio", text)}
-            placeholder="Enter bio"
-          />
-
-          <Text style={styles.label}>About Us:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.about_us}
-            onChangeText={(text) => handleChange("about_us", text)}
-            placeholder="Enter about us"
-          />
-
-          <Text style={styles.label}>Logo URL:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.logo}
-            onChangeText={(text) => handleChange("logo", text)}
-            placeholder="Enter logo URL"
-          />
-
-          <Text style={styles.label}>Profile Picture URL:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.profile_picture}
-            onChangeText={(text) => handleChange("profile_picture", text)}
-            placeholder="Enter profile picture URL"
-          />
-
-          {/* Add a save button */}
-          <Button title="Save Changes" onPress={handleSave} />
-        </View>
-      </ScrollView>
+      <View style={styles.footer}>
+        <TouchableOpacity
+          style={styles.footerButton}
+          onPress={() => navigation.navigate("HomeScreen")}
+        >
+          <Icon name="public" size={40} color={Colors.PINK} />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
-}
+};
+
+const windowWidth = Dimensions.get("window").width;
+const imageSize = windowWidth / 3 - 10;
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.WHITE,
+    backgroundColor: Colors.PINK,
   },
   container: {
-    padding: 16,
+    flex: 1,
+    backgroundColor: Colors.PINK,
   },
   scrollableContent: {
     flex: 1,
+    marginBottom: 60, // This will leave space for the fixed footer
   },
-  input: {
-    height: 40,
-    borderColor: Colors.GRAY_LIGHT,
+  scrollableContentContainer: {
+    padding: 15,
+  },
+  headerContainer: {
+    alignItems: "center", // Center content horizontally
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.PRIMARY,
+    paddingBottom: 15,
+  },
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 5,
+    borderColor: Colors.PRIMARY,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
+  },
+  infoContainer: {
+    alignItems: "center", // Center the text horizontally under the profile image
+    marginTop: 10, // Space between the image and the text
+  },
+  name: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: Colors.PRIMARY,
+  },
+  service: {
+    fontSize: 16,
+    color: Colors.PRIMARY,
+    marginTop: 5,
+  },
+  score: {
+    fontSize: 16,
+    fontWeight: "bold", // Make the score bold for emphasis
+    marginTop: 5,
+  },
+  servicesSection: {
+    paddingVertical: 15,
+  },
+  servicesContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  servicesButtonsContainer: {
+    flexDirection: "row",
+  },
+  serviceButton: {
+    backgroundColor: Colors.PRIMARY,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    marginRight: 15,
+    marginBottom: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
+  },
+  serviceButtonText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  gallerySection: {
+    marginBottom: 20, // Space below the gallery
+  },
+  galleryContainer: {
+    paddingLeft: 10,
+    paddingBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
+  },
+  postImage: {
+    width: imageSize,
+    height: imageSize,
+    margin: 5,
+    borderRadius: 8,
+    resizeMode: "cover",
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 16,
-    paddingHorizontal: 8,
+    borderColor: Colors.PRIMARY,
   },
-  label: {
+  footer: {
+    position: "absolute",
+    bottom: 15,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    backgroundColor: Colors.PINK,
+  },
+  footerButton: {
+    padding: 15,
+    backgroundColor: Colors.PRIMARY,
+    borderRadius: 50,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+  },
+  servicesListSection: {
+    marginTop: 20,
+    paddingBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: Colors.PRIMARY,
+    marginBottom: 10,
+    marginTop: -30,
+    textAlign: "center",
+    justifyContent: "center",
+  },
+  servicesListContainer: {
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  serviceItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.WHITE,
+    marginBottom: 15,
+    marginTop: 6,
+    padding: 10,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
+  },
+  serviceInfo: {
+    flex: 1,
+  },
+  serviceName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: Colors.PRIMARY,
+  },
+  serviceDetails: {
+    fontSize: 14,
+    color: Colors.GRAY,
+    marginTop: 5,
+  },
+  serviceNote: {
+    fontSize: 12,
+    color: Colors.GRAY,
+    marginTop: 5,
+  },
+  checkAvailabilityButton: {
+    backgroundColor: Colors.PRIMARY,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+    borderRadius: 7,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkAvailabilityText: {
+    color: "white",
+    fontSize: 11,
+    fontWeight: "bold",
+  },
+  manageSection: {
+    marginTop: 20,
+    paddingBottom: 20,
+    alignItems: "center",
+  },
+  manageTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: Colors.PRIMARY,
+    marginBottom: 15,
+  },
+  manageButtonsContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  manageButton: {
+    backgroundColor: Colors.PRIMARY,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 7,
+    marginBottom: 15,
+  },
+  manageButtonText: {
+    color: "white",
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 8,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  errorMessage: {
-    fontSize: 18,
-    color: "red",
-    textAlign: "center",
   },
 });
+
+export default ProviderProfile;

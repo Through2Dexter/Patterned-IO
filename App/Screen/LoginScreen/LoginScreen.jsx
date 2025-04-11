@@ -5,13 +5,13 @@ import { useFonts } from "expo-font";
 import styles from "./Styles";
 
 export default function LoginScreen({ navigation }) {
-  const [isPressed, setIsPressed] = useState(null); // Track which button is pressed
   const [fontsLoaded] = useFonts({
     "Outfit-Bold": require("../../../Assets/fonts/Outfit-Bold.ttf"),
   });
 
   const logoTranslateY = new Animated.Value(100); // Controls logo movement from bottom
   const buttonsOpacity = new Animated.Value(0); // Controls buttons fade-in
+  const [isPressed, setIsPressed] = useState(null); // Track which button is pressed
 
   // Run animations once fonts are loaded
   useEffect(() => {
@@ -30,6 +30,15 @@ export default function LoginScreen({ navigation }) {
       }).start();
     }
   }, [fontsLoaded]);
+
+  // Ensure that the button state resets after the press
+  const handlePress = (mode) => {
+    setIsPressed(mode);
+    // Delay reset to allow animation effect to complete
+    setTimeout(() => {
+      setIsPressed(null); // Reset after 300ms (or any suitable delay)
+    }, 300);
+  };
 
   if (!fontsLoaded) {
     return <Text>Loading...</Text>;
@@ -66,8 +75,8 @@ export default function LoginScreen({ navigation }) {
             },
           ]}
           onPress={() => {
-            navigation.navigate("AuthFormScreen", { mode: "login" }); // Specify mode for login
-            setIsPressed("login");
+            handlePress("login");
+            navigation.navigate("UserSignInScreen", { mode: "login" }); // Specify mode for login
           }}
         >
           <Text
@@ -92,8 +101,8 @@ export default function LoginScreen({ navigation }) {
             },
           ]}
           onPress={() => {
+            handlePress("signup");
             navigation.navigate("WelcomeScreen"); // 👈 changed from AuthFormScreen to WelcomeScreen
-            setIsPressed("signup");
           }}
         >
           <Text

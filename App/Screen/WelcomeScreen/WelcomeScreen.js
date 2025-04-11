@@ -1,10 +1,20 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Colors from "../../Utils/Colors";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 export default function WelcomeScreen({ navigation }) {
+  const handleBack = () => {
+    navigation.goBack();
+  };
+
   return (
     <View style={styles.container}>
+      {/* Back Button */}
+      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+        <Icon name="chevron-left" size={35} color={Colors.PRIMARY} />
+      </TouchableOpacity>
+
       <Text style={styles.heading}>Please Select Your Role</Text>
 
       <TouchableOpacity
@@ -47,5 +57,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontSize: 18,
+  },
+  backButton: {
+    position: "absolute",
+    top: 60,
+    left: 20,
+    zIndex: 1,
   },
 });

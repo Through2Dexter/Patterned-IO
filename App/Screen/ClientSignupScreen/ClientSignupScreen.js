@@ -20,7 +20,7 @@ const ClientSignupScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [dob, setDob] = useState(""); // Manual input for DOB
+  const [dob, setDob] = useState("");
   const [passwordStrength, setPasswordStrength] = useState(0);
 
   const handleBack = () => {
@@ -34,7 +34,6 @@ const ClientSignupScreen = ({ navigation }) => {
     }
 
     try {
-      // Step 1: Sign up the user with email and password via Supabase Auth
       const { data, error } = await supabase.auth.signUp({ email, password });
 
       if (error) {
@@ -50,14 +49,13 @@ const ClientSignupScreen = ({ navigation }) => {
         return;
       }
 
-      // Step 2: Insert user details into the 'clients' table, including email
       const { error: insertError } = await supabase.from("clients").insert([
         {
-          id: data.user.id, // the user's ID from Supabase Auth
+          id: data.user.id, // Supabase Auth UUID
           full_name: fullName,
           phone_number: phoneNumber,
           dob: dob,
-          email: email, // Store email in clients table
+          email: email,
         },
       ]);
 
@@ -70,7 +68,12 @@ const ClientSignupScreen = ({ navigation }) => {
         "Success",
         "Signed up successfully! Please check your email to confirm your registration."
       );
-      navigation.navigate("WelcomeScreen");
+
+      // 👇 Go to email confirmation screen
+      navigation.navigate("EmailConfirmationScreen", {
+        userId: data.user.id,
+        email,
+      });
     } catch (e) {
       console.error(e);
       Alert.alert("Unexpected error occurred.");
@@ -91,10 +94,7 @@ const ClientSignupScreen = ({ navigation }) => {
   };
 
   const handleDobChange = (input) => {
-    // Allow only numeric characters
     let formattedInput = input.replace(/[^0-9]/g, "");
-
-    // Format as MM/DD/YYYY
     if (formattedInput.length >= 3) {
       formattedInput = `${formattedInput.slice(0, 2)}/${formattedInput.slice(
         2
@@ -105,7 +105,6 @@ const ClientSignupScreen = ({ navigation }) => {
         5
       )}`;
     }
-
     setDob(formattedInput);
   };
 
@@ -114,9 +113,7 @@ const ClientSignupScreen = ({ navigation }) => {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer} // Ensure ScrollView covers the entire screen
-      >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Icon name="chevron-left" size={35} color={Colors.PRIMARY} />
         </TouchableOpacity>
@@ -171,7 +168,6 @@ const ClientSignupScreen = ({ navigation }) => {
           />
         </View>
 
-        {/* Manual DOB Entry with auto format */}
         <View style={styles.inputContainer}>
           <Icon
             name="calendar"
@@ -204,7 +200,6 @@ const ClientSignupScreen = ({ navigation }) => {
           />
         </View>
 
-        {/* Password Strength Indicator */}
         {password.length > 0 && (
           <View style={styles.passwordStrengthContainer}>
             <Text style={styles.passwordStrengthText}>
@@ -215,7 +210,7 @@ const ClientSignupScreen = ({ navigation }) => {
                 styles.passwordStrengthBar,
                 {
                   backgroundColor: strengthColors[passwordStrength],
-                  width: `${Math.max(Math.min(password.length * 5, 100), 20)}%`, // Ensure the width is at least 20%
+                  width: `${Math.max(Math.min(password.length * 5, 100), 20)}%`,
                 },
               ]}
             />
@@ -232,19 +227,13 @@ const ClientSignupScreen = ({ navigation }) => {
 
 export default ClientSignupScreen;
 
-// Updated Styles
-
 const styles = StyleSheet.create({
   scrollContainer: {
-    flexGrow: 1, // Ensures ScrollView takes up all available space
-    backgroundColor: "#fedbd0", // Pink background color
+    flexGrow: 1,
+    backgroundColor: "#fedbd0",
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 20,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#fedbd0", // Ensure the full screen background is pink
   },
   backButton: {
     position: "absolute",
@@ -278,7 +267,7 @@ const styles = StyleSheet.create({
     height: 50,
     color: "black",
     borderRadius: 25,
-    textAlign: "left", // Align text to the left inside the input
+    textAlign: "left",
   },
   button: {
     backgroundColor: Colors.PRIMARY,
@@ -298,9 +287,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 15,
     alignItems: "center",
-    position: "absolute", // Absolute positioning to avoid shifting layout
-    bottom: 100, // Adjust bottom distance as necessary
-    width: "80%", // Keep the width consistent with input fields
+    position: "absolute",
+    bottom: 100,
+    width: "80%",
   },
   passwordStrengthText: {
     textAlign: "center",

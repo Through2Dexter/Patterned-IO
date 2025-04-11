@@ -1,262 +1,183 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
   View,
-  TextInput,
-  Button,
-  ScrollView,
-  ActivityIndicator,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  FlatList,
 } from "react-native";
-import { supabase } from "/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/supabase.js"; // Adjust the path accordingly
+import { supabase } from "/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/supabase.js";
 import Colors from "../../Utils/Colors";
 
-export default function ProviderHomepage() {
-  const [providerData, setProviderData] = useState({
-    business_name: "",
-    service: "",
-    full_name: "",
-    email: "",
-    phone_number: "",
-    dob: "",
-    address: "",
-    bio: "",
-    about_us: "",
-    logo: "",
-    profile_picture: "",
-    certificates: [],
-    gallery: [],
-  });
+const ProvidersServiceSelection = ({ route, navigation }) => {
+  const { userId } = route.params; // Get userId passed from ProviderDetailsScreen
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(""); // New error state to track errors
+  const services = [
+    { label: "Hair", value: "Hair" },
+    { label: "Barbers", value: "Barbers" },
+    { label: "Nails", value: "Nails" },
+    { label: "Lashes", value: "Lashes" },
+    { label: "Brows", value: "Brows" },
+    { label: "Facials", value: "Facials" },
+    { label: "Makeup", value: "Makeup" },
+    { label: "Dental", value: "Dental" },
+    { label: "Hair Removal", value: "Hair Removal" },
+  ];
 
-  // Fetch provider data from Supabase (business_name, service only)
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true); // Start loading
+  const [selectedService, setSelectedService] = useState(null);
+  const [isDropdownVisible, setDropdownVisible] = useState(false); // Control visibility of dropdown menu
 
-        // Query for specific fields from the 'service_providers' table
-        const { data, error } = await supabase
-          .from("service_providers")
-          .select("business_name, service")
-          .single(); // Use .single() to fetch one record
+  const handleServiceSelection = async () => {
+    if (!selectedService) {
+      Alert.alert("Error", "Please select a service.");
+      return;
+    }
 
-        if (error) {
-          // Check for any error
-          setError(`Error fetching data: ${error.message}`); // Update error state
-          console.error("Error fetching provider data:", error.message);
-          setLoading(false);
-          return;
-        }
-
-        if (!data) {
-          // Handle case where no data is returned
-          setError("No data found for the provider.");
-          console.error("No data found for the provider.");
-          setLoading(false);
-          return;
-        }
-
-        // Set the provider data if successful
-        setProviderData((prevData) => ({
-          ...prevData,
-          business_name: data.business_name,
-          service: data.service,
-        }));
-
-        setLoading(false); // Done loading
-      } catch (error) {
-        // Catch any unexpected errors
-        setError(`Unexpected error: ${error.message}`);
-        console.error("Unexpected error:", error.message);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // Handle input changes
-  const handleChange = (field, value) => {
-    setProviderData((prevData) => ({
-      ...prevData,
-      [field]: value,
-    }));
-  };
-
-  // Save updated provider data
-  const handleSave = async () => {
     try {
-      const { data, error } = await supabase.from("service_providers").upsert([
-        {
-          id: providerData.id, // Make sure the ID exists and is correct
-          ...providerData,
-        },
-      ]);
+      const { error } = await supabase
+        .from("service_providers")
+        .update({
+          service: selectedService, // Update the service column in your table
+        })
+        .eq("user_id", userId);
 
       if (error) {
-        setError(`Error updating provider data: ${error.message}`);
-        console.error("Error updating provider data:", error.message);
+        Alert.alert("Error", error.message);
         return;
       }
 
-      console.log("Provider data updated successfully:", data);
-    } catch (error) {
-      setError(`Error saving provider data: ${error.message}`);
-      console.error("Error saving provider data:", error.message);
+      Alert.alert("Success", "Service saved!");
+
+      // Navigate to the EmailConfirmationScreen instead of ProviderHomepage
+      navigation.navigate("EmailConfirmationScreen", { userId: userId });
+    } catch (e) {
+      console.error(e);
+      Alert.alert("Unexpected error occurred.");
     }
   };
 
-  // Loading state handling
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <ActivityIndicator size="large" color={Colors.PRIMARY} />
-      </SafeAreaView>
-    );
-  }
-
-  // Display error message if there is an error
-  if (error) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorMessage}>{error}</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  const renderServiceItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.dropdownItem}
+      onPress={() => {
+        setSelectedService(item.value);
+        setDropdownVisible(false); // Close dropdown after selecting
+      }}
+    >
+      <Text style={styles.dropdownItemText}>{item.label}</Text>
+    </TouchableOpacity>
+  );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.scrollableContent}>
-        <View style={styles.container}>
-          {/* Display business name and service */}
-          <Text style={styles.label}>Business Name:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.business_name}
-            onChangeText={(text) => handleChange("business_name", text)}
-            placeholder="Enter business name"
-          />
+    <View style={styles.container}>
+      <Text style={styles.title}>What do you do?</Text>
 
-          <Text style={styles.label}>Service:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.service}
-            onChangeText={(text) => handleChange("service", text)}
-            placeholder="Enter service"
-          />
+      {/* Service Selector with button to open dropdown */}
+      <View style={styles.pickerContainer}>
+        <TouchableOpacity
+          style={styles.pickerButton}
+          onPress={() => setDropdownVisible(!isDropdownVisible)} // Toggle dropdown visibility
+        >
+          <Text style={styles.pickerText}>
+            {selectedService ? selectedService : "Select a Service"}
+          </Text>
+        </TouchableOpacity>
 
-          {/* Editable fields for missing data */}
-          <Text style={styles.label}>Full Name:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.full_name}
-            onChangeText={(text) => handleChange("full_name", text)}
-            placeholder="Enter full name"
-          />
+        {isDropdownVisible && (
+          <View style={styles.dropdown}>
+            {/* Using FlatList to display scrollable dropdown items */}
+            <FlatList
+              data={services}
+              renderItem={renderServiceItem}
+              keyExtractor={(item) => item.value}
+              style={styles.dropdownList}
+            />
+          </View>
+        )}
+      </View>
 
-          <Text style={styles.label}>Phone Number:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.phone_number}
-            onChangeText={(text) => handleChange("phone_number", text)}
-            placeholder="Enter phone number"
-          />
-
-          <Text style={styles.label}>Date of Birth:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.dob}
-            onChangeText={(text) => handleChange("dob", text)}
-            placeholder="Enter date of birth"
-          />
-
-          <Text style={styles.label}>Address:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.address}
-            onChangeText={(text) => handleChange("address", text)}
-            placeholder="Enter address"
-          />
-
-          <Text style={styles.label}>Bio:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.bio}
-            onChangeText={(text) => handleChange("bio", text)}
-            placeholder="Enter bio"
-          />
-
-          <Text style={styles.label}>About Us:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.about_us}
-            onChangeText={(text) => handleChange("about_us", text)}
-            placeholder="Enter about us"
-          />
-
-          <Text style={styles.label}>Logo URL:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.logo}
-            onChangeText={(text) => handleChange("logo", text)}
-            placeholder="Enter logo URL"
-          />
-
-          <Text style={styles.label}>Profile Picture URL:</Text>
-          <TextInput
-            style={styles.input}
-            value={providerData.profile_picture}
-            onChangeText={(text) => handleChange("profile_picture", text)}
-            placeholder="Enter profile picture URL"
-          />
-
-          {/* Add a save button */}
-          <Button title="Save Changes" onPress={handleSave} />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+      {/* Continue button */}
+      <TouchableOpacity style={styles.button} onPress={handleServiceSelection}>
+        <Text style={styles.buttonText}>Continue</Text>
+      </TouchableOpacity>
+    </View>
   );
-}
+};
+
+export default ProvidersServiceSelection;
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.WHITE,
-  },
   container: {
-    padding: 16,
-  },
-  scrollableContent: {
     flex: 1,
-  },
-  input: {
-    height: 40,
-    borderColor: Colors.GRAY_LIGHT,
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  errorContainer: {
-    flex: 1,
+    backgroundColor: "#fedbd0",
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
-  errorMessage: {
-    fontSize: 18,
-    color: "red",
+  title: {
+    fontSize: 28,
+    fontFamily: "Outfit-Bold",
+    color: Colors.PRIMARY,
+    marginBottom: 30,
     textAlign: "center",
+  },
+  pickerContainer: {
+    position: "relative", // Allow absolute positioning of dropdown
+    width: 250,
+  },
+  pickerButton: {
+    padding: 15,
+    backgroundColor: Colors.PINK,
+    borderRadius: 25,
+    borderColor: Colors.PRIMARY,
+    borderWidth: 2,
+    alignItems: "center",
+  },
+  pickerText: {
+    fontFamily: "Outfit-Regular",
+    fontSize: 16,
+    color: Colors.PRIMARY,
+    fontFamily: "Outfit-Bold",
+  },
+  dropdown: {
+    position: "absolute",
+    top: 55, // Position the dropdown below the picker
+    left: 0,
+    right: 0,
+    backgroundColor: "#fff9f7",
+    borderRadius: 2,
+    borderColor: Colors.PRIMARY,
+    borderWidth: 2,
+    maxHeight: 200, // Limit dropdown height
+    zIndex: 1, // Ensure the dropdown is above other elements
+    marginTop: 90,
+  },
+  dropdownList: {
+    maxHeight: 200, // Scrollable dropdown
+  },
+  dropdownItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.PRIMARY,
+    backgroundColor: Colors.PINK,
+  },
+  dropdownItemText: {
+    fontFamily: "Outfit-Regular",
+    fontSize: 16,
+    color: Colors.PRIMARY,
+  },
+  button: {
+    backgroundColor: Colors.PRIMARY,
+    padding: 15,
+    borderRadius: 99,
+    marginTop: 20,
+    alignItems: "center",
+    width: "100%",
+  },
+  buttonText: {
+    fontFamily: "Outfit-Bold",
+    fontSize: 16,
+    color: "#fff",
   },
 });

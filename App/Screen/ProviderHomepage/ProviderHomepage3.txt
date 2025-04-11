@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,40 +8,25 @@ import {
   Image,
   Dimensions,
   TouchableOpacity,
-  Animated,
-  Linking,
+  Modal,
+  TextInput,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Colors from "../../Utils/Colors";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-const ProviderProfile = ({ route }) => {
-  const { provider } = route.params; // Get provider passed from the homepage
+
+
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [editedService, setEditedService] = useState({
+    name: "",
+    description: "",
+    price: "",
+  });
+
   const navigation = useNavigation();
-
-  const imageData = provider.gallery || [];
-  const scrollX = new Animated.Value(0);
-
-  const handleScroll = (event) => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    scrollX.setValue(contentOffsetX);
-  };
-
-  const fadeLeft = scrollX.interpolate({
-    inputRange: [0, 100],
-    outputRange: [1, 0],
-    extrapolate: "clamp",
-  });
-
-  const fadeRight = scrollX.interpolate({
-    inputRange: [
-      0,
-      Dimensions.get("window").width - 50,
-      Dimensions.get("window").width,
-    ],
-    outputRange: [0, 1, 0],
-    extrapolate: "clamp",
-  });
 
   const getScoreColor = (score) => {
     if (score >= 75) {
@@ -53,6 +38,26 @@ const ProviderProfile = ({ route }) => {
     }
   };
 
+  const handleEditService = (service) => {
+    setSelectedService(service);
+    setEditedService({
+      name: service.name,
+      description: service.description,
+      price: service.price.toString(),
+    });
+    setModalVisible(true);
+  };
+
+  const handleSaveService = () => {
+    const updatedServices = providerData.services.map((service) =>
+      service.name === selectedService.name
+        ? { ...service, ...editedService }
+        : service
+    );
+    setProviderData({ ...providerData, services: updatedServices });
+    setModalVisible(false);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -61,58 +66,58 @@ const ProviderProfile = ({ route }) => {
           contentContainerStyle={styles.scrollableContentContainer}
         >
           <View style={styles.headerContainer}>
-            <Image source={provider.logo} style={styles.profileImage} />
+            <Image source={providerData.logo} style={styles.profileImage} />
             <View style={styles.infoContainer}>
-              <Text style={styles.name}>{provider.name}</Text>
-              <Text style={styles.service}>Service: {provider.service}</Text>
+              <Text style={styles.name}>{providerData.name}</Text>
+              <Text style={styles.service}>
+                Service: {providerData.service}
+              </Text>
               <Text
                 style={[
                   styles.score,
-                  { color: getScoreColor(provider.reliabilityScore) },
+                  { color: getScoreColor(providerData.reliabilityScore) },
                 ]}
               >
-                Reliability Score: {provider.reliabilityScore}
+                Reliability Score: {providerData.reliabilityScore}
               </Text>
             </View>
           </View>
 
           <View style={styles.servicesSection}>
             <View style={styles.servicesContainer}>
-              <Animated.View style={[styles.fadeLeft, { opacity: fadeLeft }]} />
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                onScroll={handleScroll}
-                scrollEventThrottle={16}
                 contentContainerStyle={styles.servicesButtonsContainer}
               >
                 {[
-                  "Book now",
+                  "Manage Bookings",
                   "Gallery",
-                  "Emergency slot",
-                  "Services",
-                  "Message",
+                  "Add Emergency Slot",
+                  "Add Services",
+                  "Messages",
                   "Reviews",
-                  "About",
+                  "Edit About",
                 ].map((title, index) => (
-                  <TouchableOpacity key={index} style={styles.serviceButton}>
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.serviceButton}
+                    onPress={() => {
+                      if (title === "Gallery") {
+                        navigation.navigate("ManageGallery");
+                      } else if (title === "Manage Bookings") {
+                        navigation.navigate("ManageBookings");
+                      } else if (title === "Add Services") {
+                        navigation.navigate("ManageServices");
+                      } else {
+                        // Handle other navigation actions
+                      }
+                    }}
+                  >
                     <Text style={styles.serviceButtonText}>{title}</Text>
                   </TouchableOpacity>
                 ))}
-
-                <TouchableOpacity
-                  style={styles.serviceButton}
-                  onPress={() => {
-                    const url = `https://www.google.com/maps?q=${provider.latitude},${provider.longitude}`;
-                    Linking.openURL(url);
-                  }}
-                >
-                  <Text style={styles.serviceButtonText}>Get Directions</Text>
-                </TouchableOpacity>
               </ScrollView>
-              <Animated.View
-                style={[styles.fadeRight, { opacity: fadeRight }]}
-              />
             </View>
           </View>
 
@@ -122,7 +127,7 @@ const ProviderProfile = ({ route }) => {
               contentContainerStyle={styles.galleryContainer}
               showsHorizontalScrollIndicator={false}
             >
-              {imageData.map((item, index) => (
+              {providerData.gallery.map((item, index) => (
                 <Image key={index} source={item} style={styles.postImage} />
               ))}
             </ScrollView>
@@ -130,29 +135,27 @@ const ProviderProfile = ({ route }) => {
 
           {/* Services Section */}
           <View style={styles.servicesListSection}>
-            <Text style={styles.sectionTitle}>Services</Text>
+            <Text style={styles.sectionTitle}>My Services</Text>
             <ScrollView
               contentContainerStyle={styles.servicesListContainer}
               showsVerticalScrollIndicator={false}
             >
-              {provider.services &&
-                provider.services.map((service, index) => (
-                  <View key={index} style={styles.serviceItem}>
-                    <View style={styles.serviceInfo}>
-                      <Text style={styles.serviceName}>{service.name}</Text>
-                      <Text style={styles.serviceDetails}>
-                        Price: £{service.price} | Duration: {service.duration}{" "}
-                        mins
-                      </Text>
-                      <Text style={styles.serviceNote}>{service.note}</Text>
-                    </View>
-                    <TouchableOpacity style={styles.checkAvailabilityButton}>
-                      <Text style={styles.checkAvailabilityText}>
-                        Check Availability
-                      </Text>
-                    </TouchableOpacity>
+              {providerData.services.map((service, index) => (
+                <View key={index} style={styles.serviceItem}>
+                  <View style={styles.serviceInfo}>
+                    <Text style={styles.serviceName}>{service.name}</Text>
+                    <Text style={styles.serviceDetails}>
+                      Price: ${service.price}
+                    </Text>
+                    <Text style={styles.serviceDescription}>
+                      {service.note} 
+                    </Text>
                   </View>
-                ))}
+                  <TouchableOpacity onPress={() => handleEditService(service)}>
+                    <Icon name="edit" size={24} color={Colors.PRIMARY} />
+                  </TouchableOpacity>
+                </View>
+              ))}
             </ScrollView>
           </View>
         </ScrollView>
@@ -166,9 +169,64 @@ const ProviderProfile = ({ route }) => {
           <Icon name="public" size={40} color={Colors.PINK} />
         </TouchableOpacity>
       </View>
+
+      {/* Modal for Editing Service */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Edit Service</Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Service Name"
+              value={editedService.name}
+              onChangeText={(text) =>
+                setEditedService({ ...editedService, name: text })
+              }
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Description"
+              value={editedService.description}
+              onChangeText={(text) =>
+                setEditedService({ ...editedService, description: text })
+              }
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Price"
+              value={editedService.price}
+              onChangeText={(text) =>
+                setEditedService({ ...editedService, price: text })
+              }
+              keyboardType="numeric"
+            />
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                onPress={handleSaveService}
+                style={styles.modalButton}
+              >
+                <Text style={styles.modalButtonText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={styles.modalButton}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
-};
+}
 
 const windowWidth = Dimensions.get("window").width;
 const imageSize = windowWidth / 3 - 10;
@@ -319,68 +377,79 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
     shadowRadius: 5,
+    justifyContent: "space-between", // Pushes the pen icon to the right
   },
+
   serviceInfo: {
-    flex: 1,
+    flexDirection: "column",
+    flex: 1, // Takes up remaining space to push the icon to the right
   },
+
   serviceName: {
     fontSize: 18,
     fontWeight: "bold",
     color: Colors.PRIMARY,
   },
+
   serviceDetails: {
     fontSize: 14,
     color: Colors.GRAY,
     marginTop: 5,
   },
-  serviceNote: {
-    fontSize: 12,
-    color: Colors.GRAY,
+
+  serviceDescription: {
+    fontSize: 14,
+    color: Colors.GREY,
     marginTop: 5,
   },
-  checkAvailabilityButton: {
-    backgroundColor: Colors.PRIMARY,
-    paddingVertical: 10,
-    paddingHorizontal: 6,
-    borderRadius: 7,
-    alignItems: "center",
+
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
     justifyContent: "center",
-  },
-  checkAvailabilityText: {
-    color: "white",
-    fontSize: 11,
-    fontWeight: "bold",
-  },
-  manageSection: {
-    marginTop: 20,
-    paddingBottom: 20,
     alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  manageTitle: {
+  modalContainer: {
+    backgroundColor: Colors.WHITE,
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+    maxWidth: 400,
+  },
+  modalTitle: {
     fontSize: 22,
     fontWeight: "bold",
     color: Colors.PRIMARY,
-    marginBottom: 15,
+    marginBottom: 20,
+    textAlign: "center",
   },
-  manageButtonsContainer: {
-    flexDirection: "column",
-    alignItems: "center",
+  input: {
+    height: 40,
+    borderColor: Colors.PRIMARY,
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 10,
+    paddingLeft: 10,
   },
-  manageButton: {
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  modalButton: {
     backgroundColor: Colors.PRIMARY,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 7,
-    marginBottom: 15,
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    margin: 5,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  manageButtonText: {
-    color: "white",
-    fontSize: 16,
+  modalButtonText: {
+    color: Colors.WHITE,
     fontWeight: "bold",
   },
 });
-
-export default ProviderProfile;

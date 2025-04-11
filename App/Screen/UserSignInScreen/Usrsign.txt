@@ -1,0 +1,168 @@
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Vibration,
+} from "react-native";
+import { supabase } from "/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/supabase.js";
+import Colors from "../../Utils/Colors";
+import Icon from "react-native-vector-icons/FontAwesome";
+import { Audio } from "expo-av";
+
+const UserSignInScreen = ({ navigation }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoginSuccessful, setIsLoginSuccessful] = useState(false);
+
+  const playSuccessSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      require("/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/Assets/sounds/bing.mp3")
+    );
+    await sound.playAsync();
+  };
+
+  const handleBack = () => {
+    navigation.goBack();
+  };
+
+  const handleLogin = async () => {
+    // Prevent early return affecting hook calls
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter both email and password.");
+      return; // Early return, but no hook issues here.
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        Alert.alert("Login Error", error.message);
+        return; // Early return, no issues here either
+      }
+
+      if (data?.user) {
+        Vibration.vibrate(500);
+        await playSuccessSound();
+        setIsLoginSuccessful(true);
+
+        setTimeout(async () => {
+          const { data: clientData, error: clientError } = await supabase
+            .from("clients")
+            .select("*")
+            .eq("email", email)
+            .single();
+
+          if (clientError && clientError.code !== "PGRST116") {
+            const { data: providerData, error: providerError } = await supabase
+              .from("providers")
+              .select("*")
+              .eq("email", email)
+              .single();
+
+            if (providerError && providerError.code !== "PGRST116") {
+              Alert.alert("Error", "User not found in any role.");
+              return;
+            }
+
+            if (providerData) {
+              Alert.alert("Success", "Logged in successfully as Provider!");
+              navigation.navigate("ProviderHomepage");
+            }
+          } else {
+            Alert.alert("Success", "Logged in successfully as Client!");
+            navigation.navigate("HomeScreen");
+          }
+        }, 1000);
+      }
+    } catch (e) {
+      console.error(e);
+      Alert.alert("Unexpected error occurred.");
+    }
+  };
+
+  return (
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Icon name="chevron-left" size={35} color={Colors.PRIMARY} />
+        </TouchableOpacity>
+
+        <Text style={styles.title}>Welcome Back! 👋</Text>
+
+        <View style={styles.inputContainer}>
+          <Icon
+            name="envelope"
+            size={20}
+            color={Colors.PRIMARY}
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            style={styles.input}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Icon
+            name="lock"
+            size={20}
+            color={Colors.PRIMARY}
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            style={styles.input}
+          />
+        </View>
+
+        {/* Login Button */}
+        <TouchableOpacity
+          onPress={handleLogin}
+          style={[
+            styles.button,
+            {
+              backgroundColor: isLoginSuccessful ? "green" : Colors.PRIMARY,
+            },
+          ]}
+        >
+          <Text style={styles.buttonText}>Log In</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.forgotPasswordButton}
+          onPress={() => navigation.navigate("PasswordRecoveryScreen")}
+        >
+          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.createAccountButton}
+          onPress={() => navigation.navigate("SignupScreen")}
+        >
+          <Text style={styles.createAccountText}>
+            Don't have an account? Sign up
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </TouchableWithoutFeedback>
+  );
+};
+
+export default UserSignInScreen;

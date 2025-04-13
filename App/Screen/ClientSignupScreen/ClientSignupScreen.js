@@ -51,7 +51,8 @@ const ClientSignupScreen = ({ navigation }) => {
 
       const { error: insertError } = await supabase.from("clients").insert([
         {
-          id: data.user.id, // Supabase Auth UUID
+          id: data.user.id, // optional if you have it as PK
+          user_id: data.user.id, // 🔑 THIS is the fix!
           full_name: fullName,
           phone_number: phoneNumber,
           dob: dob,

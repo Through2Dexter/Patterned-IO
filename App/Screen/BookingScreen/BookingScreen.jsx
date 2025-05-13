@@ -41,7 +41,7 @@ const BookingScreen = ({ route, navigation }) => {
         <Text style={styles.serviceText}>Haircut - $20</Text>
       </TouchableOpacity>
 
-      <Text style={styles.subHeading}>Enter Your Details</Text>
+      <Text style={styles.subHeading}>Enter YourDetails</Text>
       <TextInput style={styles.input} placeholder="Your Name" />
       <TextInput
         style={styles.input}

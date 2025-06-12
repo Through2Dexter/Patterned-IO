@@ -18,7 +18,7 @@ import styles from "./Styles";
 import { Ionicons } from "@expo/vector-icons";
 import * as Font from "expo-font";
 import * as Location from "expo-location";
-import { supabase } from "/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/supabase.js";
+import { supabase } from "../../../Assets/supabase.js";
 
 const HomeScreen = () => {
   const [selectedService, setSelectedService] = useState("");

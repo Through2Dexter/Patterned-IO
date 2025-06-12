@@ -7,7 +7,7 @@ import {
   Alert,
   FlatList,
 } from "react-native";
-import { supabase } from "/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/supabase.js";
+import { supabase } from "../../../Assets/supabase.js";
 import Colors from "../../Utils/Colors";
 
 const ProvidersServiceSelection = ({ route, navigation }) => {

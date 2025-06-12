@@ -9,7 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { supabase } from "/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/supabase.js";
+import { supabase } from "../../../Assets/supabase.js";
 import Colors from "../../Utils/Colors";
 
 const ProviderDetailsScreen = ({ route, navigation }) => {

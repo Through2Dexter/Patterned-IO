@@ -13,7 +13,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import Colors from "../../Utils/Colors";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import { supabase } from "/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/supabase.js";
+import { supabase } from "../../../Assets/supabase.js";
 
 const ClientMyProfileScreen = ({ route }) => {
   const { user_id } = route.params || {}; // expects user_id to be passed

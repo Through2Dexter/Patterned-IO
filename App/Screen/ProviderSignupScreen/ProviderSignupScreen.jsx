@@ -10,7 +10,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
-import { supabase } from "/Users/drigyy/Desktop/Software Deveopment/BlueScope Technologies Incorperated/Patterned-IO/supabase.js";
+import { supabase } from "../../../Assets/supabase.js";
 import zxcvbn from "zxcvbn";
 import Colors from "../../Utils/Colors";
 import Icon from "react-native-vector-icons/FontAwesome";
